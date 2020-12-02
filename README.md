@@ -12,7 +12,10 @@
 - The official `modlist.html` contains broken links to the projects
 
 ## How to get
-*Downloads will be available soon*
+1. [Download here](https://github.com/MelanX/ModListCreator/releases)
+
+OR
+
 1. Clone this repository
 2. Run `gradlew build`
 3. Get file from path/build/libs/
