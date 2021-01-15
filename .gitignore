@@ -26,4 +26,5 @@ hs_err_pid*
 config/
 build/
 modlist.html
+modlist.md
 manifest.json

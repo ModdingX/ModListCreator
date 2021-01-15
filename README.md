@@ -1,10 +1,18 @@
 # ModListCreator
 
 ## How to use
+### HTML
 1. Put the ModListCreator file into a folder
 2. Extract the `manifest.json` file from an exported modpack file into the same folder
 3. Run ModListCreator jar file
 4. Wait for `modlist.html`
+
+### Markdown
+1. Put the ModListCreator file into a folder
+2. Extract the `manifest.json` file from an exported modpack file into the same folder
+3. Open command line
+4. Execute ModListCreator with argument `--md`
+5. Wait for `modlist.md`
 
 ## Why use this instead of exported modlist?
 - This tool sorts the project names alphabetically
