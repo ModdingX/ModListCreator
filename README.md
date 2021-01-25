@@ -20,6 +20,8 @@
 | `output`          | Defines the output directory for generated files   |
 | `workingDir`      | Defines the path where input and output should be  |
 
+You can combine multiple arguments in one command. You can see the usage below.
+
 ### MD / Markdown / HTML
 To use this argument, use the following command:
 
