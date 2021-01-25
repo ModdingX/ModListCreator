@@ -17,7 +17,7 @@ public class MarkdownFile extends FileBase {
     @Override
     public void generateFile(String name, File output) {
         if (!headless) {
-            this.builder.append("##");
+            this.builder.append("## ");
             this.builder.append(this.getHeader());
             this.builder.append("\n");
         }
