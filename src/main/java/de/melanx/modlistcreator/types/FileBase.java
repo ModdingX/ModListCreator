@@ -9,6 +9,7 @@ import de.melanx.modlistcreator.util.MapUtil;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +44,7 @@ public abstract class FileBase {
         }
     }
 
-    public abstract void generateFile();
+    public abstract void generateFile(String name, File output);
 
     protected abstract String getFormattedProject(CurseFile file);
 
@@ -51,16 +52,21 @@ public abstract class FileBase {
 
     public abstract String getExtension();
 
-    protected void generateFinalFile() {
+    protected void generateFinalFile(String name, File output) {
         if (this.builder.toString().isEmpty()) {
             throw new IllegalStateException("Nothing to write to the file!");
         }
         try {
-            File file = new File("modlist." + this.getExtension());
+            if (!output.exists()) {
+                if (output.mkdirs()) {
+                    System.out.println("Created output directory: " + output);
+                }
+            }
+            File file = new File(Paths.get(output.toString()) + File.separator + name + "." + this.getExtension());
             FileWriter writer = new FileWriter(file);
             writer.write(this.getContent());
             writer.close();
-            System.out.println("Successfully generated " + file);
+            System.out.println("Successfully generated " + file.getName());
         } catch (IOException e) {
             e.printStackTrace();
         }

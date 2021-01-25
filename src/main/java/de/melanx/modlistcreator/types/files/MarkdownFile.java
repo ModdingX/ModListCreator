@@ -7,13 +7,15 @@ import com.therandomlabs.curseapi.project.CurseMember;
 import com.therandomlabs.curseapi.project.CurseProject;
 import de.melanx.modlistcreator.types.FileBase;
 
+import java.io.File;
+
 public class MarkdownFile extends FileBase {
     public MarkdownFile(CurseModpack pack, boolean detailed, boolean headless) {
         super(pack, detailed, headless);
     }
 
     @Override
-    public void generateFile() {
+    public void generateFile(String name, File output) {
         if (!headless) {
             this.builder.append("##");
             this.builder.append(this.getHeader());
@@ -32,7 +34,7 @@ public class MarkdownFile extends FileBase {
             this.builder.append(this.getFormattedAuthor(project.author()));
             this.builder.append(")\n");
         });
-        this.generateFinalFile();
+        this.generateFinalFile(name, output);
     }
 
     @Override

@@ -7,13 +7,15 @@ import com.therandomlabs.curseapi.project.CurseMember;
 import com.therandomlabs.curseapi.project.CurseProject;
 import de.melanx.modlistcreator.types.FileBase;
 
+import java.io.File;
+
 public class HtmlFile extends FileBase {
     public HtmlFile(CurseModpack pack, boolean detailed, boolean headless) {
         super(pack, detailed, headless);
     }
 
     @Override
-    public void generateFile() {
+    public void generateFile(String name, File output) {
         if (!headless) {
             this.builder.append("<h2>");
             this.builder.append(this.getHeader());
@@ -33,7 +35,7 @@ public class HtmlFile extends FileBase {
             this.builder.append(this.getFormattedAuthor(project.author()));
             this.builder.append(")</li>\n");
         });
-        this.generateFinalFile();
+        this.generateFinalFile(name, output);
     }
 
     @Override
