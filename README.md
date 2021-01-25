@@ -1,18 +1,19 @@
 # ModListCreator
+[![Total downloads](https://img.shields.io/github/downloads/MelanX/ModListCreator/total.svg)](https://www.github.com/MelanX/ModListCreator/releases/)
 
 ## How to use
-### HTML
 1. Put the ModListCreator file into a folder
 2. Extract the `manifest.json` file from an exported modpack file into the same folder
 3. Run ModListCreator jar file
-4. Wait for `modlist.html`
+4. Wait for all the `modlist.*` files.
 
-### Markdown
-1. Put the ModListCreator file into a folder
-2. Extract the `manifest.json` file from an exported modpack file into the same folder
-3. Open command line
-4. Execute ModListCreator with argument `--md`
-5. Wait for `modlist.md`
+## Arguments you could use
+| Argument     | Output                                       |
+|--------------|----------------------------------------------|
+| `--html`     | Exports only an **HTML** file                |
+| `--md`       | Exports only a **Markdown** file             |
+| `--detailed` | Shows exact version of each mod              |
+| `--headless` | Generates the file without pack name/version |
 
 ## Why use this instead of exported modlist?
 - This tool sorts the project names alphabetically
