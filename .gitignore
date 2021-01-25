@@ -25,6 +25,8 @@ hs_err_pid*
 .idea/
 config/
 build/
+input/
+output/
 modlist.html
 modlist.md
 manifest.json

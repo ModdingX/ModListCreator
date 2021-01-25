@@ -5,12 +5,14 @@ import com.therandomlabs.curseapi.minecraft.modpack.CurseModpack;
 import de.melanx.modlistcreator.types.FileBase;
 import de.melanx.modlistcreator.types.files.HtmlFile;
 import de.melanx.modlistcreator.types.files.MarkdownFile;
+import de.melanx.modlistcreator.util.NameFormat;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
@@ -27,10 +29,11 @@ public class ModListCreator {
         parser.accepts("html");
         parser.accepts("md");
         parser.accepts("markdown");
+        OptionSpec<String> nameFormat = parser.accepts("nameFormat").withRequiredArg().ofType(String.class).defaultsTo("default");
         OptionSpec<File> toolDir = parser.accepts("workingDir").withRequiredArg().ofType(File.class).defaultsTo(new File(Paths.get("").toUri()));
         OptionSpec<File> packs = parser.accepts("input").withRequiredArg().ofType(File.class);
         OptionSpec<File> output = parser.accepts("output").withRequiredArg().ofType(File.class);
-        OptionSpec<File> manifest = parser.accepts("manifest").withRequiredArg().ofType(File.class).defaultsTo(new File(Paths.get("manifest.json").toUri()));
+        OptionSpec<File> manifest = parser.accepts("manifest").withRequiredArg().ofType(File.class);
         OptionSpec<String> empty = parser.nonOptions();
         optionSet = parser.parse(args);
 
@@ -43,15 +46,17 @@ public class ModListCreator {
             System.out.println("Completely ignored arguments: " + list);
         }
 
+        NameFormat format = NameFormat.get(getValue(optionSet, nameFormat));
         File workDir = getValue(optionSet, toolDir);
         File inDir = optionSet.has(packs) ? getValue(optionSet, packs) : new File(workDir, "input/");
         File outDir = optionSet.has(output) ? getValue(optionSet, output) : new File(workDir, "output/");
         if (optionSet.has(packs)) {
             if (inDir.isDirectory()) {
                 for (File file : Objects.requireNonNull(inDir.listFiles())) {
+                    CurseModpack pack = CurseModpack.fromJSON(file.toPath());
                     generateForPack(
-                            CurseModpack.fromJSON(file.toPath()),
-                            file.getName().replace(".json", "") + "-modlist",
+                            pack,
+                            getFileName(format, pack, file.getName().replace(".json", "")),
                             outDir
                     );
                 }
@@ -59,9 +64,11 @@ public class ModListCreator {
                 throw new IllegalArgumentException("Path to packs is no directory: " + inDir.toString());
             }
         } else {
+            Path path = optionSet.has(manifest) ? getValue(optionSet, manifest).toPath() : Paths.get("manifest.json");
+            CurseModpack pack = CurseModpack.fromJSON(path);
             generateForPack(
-                    CurseModpack.fromJSON(getValue(optionSet, manifest).toPath()),
-                    "modlist",
+                    pack,
+                    getFileName(format, pack),
                     outDir
             );
         }
@@ -93,6 +100,24 @@ public class ModListCreator {
             set.add(new HtmlFile(pack, detailed, headless));
             set.add(new MarkdownFile(pack, detailed, headless));
             set.forEach(file -> new Thread(() -> file.generateFile(name, output)).start());
+        }
+    }
+
+    private static String getFileName(NameFormat format, CurseModpack pack) {
+        return getFileName(format, pack, "");
+    }
+
+    private static String getFileName(NameFormat format, CurseModpack pack, String prefix) {
+        switch (format) {
+            case NAME:
+                return pack.name();
+            case VERSION:
+                return pack.version();
+            case NAME_VERSION:
+                return pack.name() + " - " + pack.version();
+            default:
+            case DEFAULT:
+                return !prefix.isEmpty() ? prefix + "-modlist" : "modlist";
         }
     }
 
