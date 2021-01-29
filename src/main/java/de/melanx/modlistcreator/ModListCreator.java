@@ -72,6 +72,7 @@ public class ModListCreator {
                     outDir
             );
         }
+        System.exit(0);
     }
 
     private static void generateForPack(CurseModpack pack, String name, File output) {
