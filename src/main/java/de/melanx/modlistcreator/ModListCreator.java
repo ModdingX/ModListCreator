@@ -22,7 +22,7 @@ import java.util.Set;
 public class ModListCreator {
     private static OptionSet optionSet;
 
-    public static void main(String[] args) throws CurseException {
+    public static void main(String[] args) throws CurseException, InterruptedException {
         OptionParser parser = new OptionParser();
         parser.accepts("detailed");
         parser.accepts("headless");
@@ -75,24 +75,20 @@ public class ModListCreator {
         System.exit(0);
     }
 
-    private static void generateForPack(CurseModpack pack, String name, File output) {
+    private static void generateForPack(CurseModpack pack, String name, File output) throws InterruptedException {
         boolean alreadyGenerated = false;
         boolean detailed = optionSet.has("detailed");
         boolean headless = optionSet.has("headless");
 
         if (optionSet.has("html")) {
-            new Thread(() -> {
-                FileBase html = new HtmlFile(pack, detailed, headless);
-                html.generateFile(name, output);
-            }).start();
+            FileBase html = new HtmlFile(pack, detailed, headless);
+            html.generateFile(name, output);
             alreadyGenerated = true;
         }
 
         if (optionSet.has("md") || optionSet.has("markdown")) {
-            new Thread(() -> {
-                FileBase markdown = new MarkdownFile(pack, detailed, headless);
-                markdown.generateFile(name, output);
-            }).start();
+            FileBase markdown = new MarkdownFile(pack, detailed, headless);
+            markdown.generateFile(name, output);
             alreadyGenerated = true;
         }
 
@@ -100,7 +96,15 @@ public class ModListCreator {
             Set<FileBase> set = new HashSet<>();
             set.add(new HtmlFile(pack, detailed, headless));
             set.add(new MarkdownFile(pack, detailed, headless));
-            set.forEach(file -> new Thread(() -> file.generateFile(name, output)).start());
+            Set<Thread> threads = new HashSet<>();
+            set.forEach(file -> {
+                Thread t = new Thread(() -> file.generateFile(name, output));
+                threads.add(t);
+                t.start();
+            });
+            for (Thread thread : threads) {
+                thread.join();
+            }
         }
     }
 
