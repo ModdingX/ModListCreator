@@ -45,6 +45,8 @@ public class ModListCreator {
         if (!list.isEmpty()) {
             System.out.println("Completely ignored arguments: " + list);
         }
+        
+        Set<Thread> joins = new HashSet<>();
 
         NameFormat format = NameFormat.get(getValue(optionSet, nameFormat));
         File workDir = getValue(optionSet, toolDir);
@@ -55,6 +57,7 @@ public class ModListCreator {
                 for (File file : Objects.requireNonNull(inDir.listFiles())) {
                     CurseModpack pack = CurseModpack.fromJSON(file.toPath());
                     generateForPack(
+                            joins,
                             pack,
                             getFileName(format, pack, file.getName().replace(".json", "")),
                             outDir
@@ -67,28 +70,40 @@ public class ModListCreator {
             Path path = optionSet.has(manifest) ? getValue(optionSet, manifest).toPath() : Paths.get("manifest.json");
             CurseModpack pack = CurseModpack.fromJSON(path);
             generateForPack(
+                    joins,
                     pack,
                     getFileName(format, pack),
                     outDir
             );
         }
+        for (Thread t : joins) {
+            t.join();
+        }
         System.exit(0);
     }
 
-    private static void generateForPack(CurseModpack pack, String name, File output) throws InterruptedException {
+    private static void generateForPack(Set<Thread> joins, CurseModpack pack, String name, File output) {
         boolean alreadyGenerated = false;
         boolean detailed = optionSet.has("detailed");
         boolean headless = optionSet.has("headless");
 
         if (optionSet.has("html")) {
-            FileBase html = new HtmlFile(pack, detailed, headless);
-            html.generateFile(name, output);
+            Thread t = new Thread(() -> {
+                FileBase html = new HtmlFile(pack, detailed, headless);
+                html.generateFile(name, output);
+            });
+            joins.add(t);
+            t.start();
             alreadyGenerated = true;
         }
 
         if (optionSet.has("md") || optionSet.has("markdown")) {
-            FileBase markdown = new MarkdownFile(pack, detailed, headless);
-            markdown.generateFile(name, output);
+            Thread t = new Thread(() -> {
+                FileBase markdown = new MarkdownFile(pack, detailed, headless);
+                markdown.generateFile(name, output);
+            });
+            joins.add(t);
+            t.start();
             alreadyGenerated = true;
         }
 
@@ -96,15 +111,11 @@ public class ModListCreator {
             Set<FileBase> set = new HashSet<>();
             set.add(new HtmlFile(pack, detailed, headless));
             set.add(new MarkdownFile(pack, detailed, headless));
-            Set<Thread> threads = new HashSet<>();
             set.forEach(file -> {
                 Thread t = new Thread(() -> file.generateFile(name, output));
-                threads.add(t);
+                joins.add(t);
                 t.start();
             });
-            for (Thread thread : threads) {
-                thread.join();
-            }
         }
     }
 
