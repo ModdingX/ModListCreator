@@ -40,8 +40,9 @@ public class MarkdownFile extends FileBase {
     @Override
     protected String getFormattedProject(CurseFile file) {
         try {
-            return String.format("[%s](https://www.curseforge.com/minecraft/mc-mods/%s%s)",
+            return String.format("[%s](https://www.curseforge.com/minecraft/%s/%s%s)",
                     this.detailed ? file.displayName() : file.project().name(),
+                    file.project().categorySection().asCategory().slug(),
                     file.project().slug(),
                     this.detailed ? "/" + file.id() : "");
         } catch (CurseException e) {

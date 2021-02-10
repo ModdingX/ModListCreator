@@ -41,7 +41,8 @@ public class HtmlFile extends FileBase {
     @Override
     protected String getFormattedProject(CurseFile file) {
         try {
-            return String.format("<a href=\"https://www.curseforge.com/minecraft/mc-mods/%s%s\">%s</a>",
+            return String.format("<a href=\"https://www.curseforge.com/minecraft/%s/%s%s\">%s</a>",
+                    file.project().categorySection().asCategory().slug(),
                     file.project().slug(),
                     this.detailed ? "/" + file.id() : "",
                     this.detailed ? file.displayName() : file.project().name());
