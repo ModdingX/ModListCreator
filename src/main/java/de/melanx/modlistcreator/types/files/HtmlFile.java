@@ -17,7 +17,7 @@ public class HtmlFile extends FileBase {
 
     @Override
     public void generateFile(String name, File output) {
-        System.out.println("[" + this.pack.name() + "] Putting everything together...");
+        System.out.println("[\u001B[32m" + this.pack.name() + "\u001B[0m] \u001B[31mPutting \u001B[32meverything \u001B[34mtogether\u001B[35m.\u001B[36m.\u001B[33m.\u001B[0m");
         if (!this.headless) {
             this.builder.append("<h2>");
             this.builder.append(this.getHeader());

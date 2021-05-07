@@ -30,7 +30,7 @@ public abstract class FileBase {
                 try {
                     CurseProject project = file.project();
                     this.projects.put(project, file);
-                    System.out.println("[" + this.pack.name() + "] " + (this.detailed ? file.displayName() : project.name()) + " found.");
+                    System.out.println("[\u001B[32m" + this.pack.name() + "\u001B[0m] \u001B[33m" + (this.detailed ? file.displayName() : project.name()) + "\u001B[0m found");
                 } catch (CurseException e) {
                     e.printStackTrace();
                 }
