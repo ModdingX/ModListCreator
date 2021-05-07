@@ -4,15 +4,13 @@ import com.therandomlabs.curseapi.CurseException;
 import com.therandomlabs.curseapi.file.CurseFile;
 import com.therandomlabs.curseapi.minecraft.modpack.CurseModpack;
 import com.therandomlabs.curseapi.project.CurseMember;
-import de.melanx.modlistcreator.util.MapUtil;
+import com.therandomlabs.curseapi.project.CurseProject;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class FileBase {
@@ -20,7 +18,7 @@ public abstract class FileBase {
     protected final CurseModpack pack;
     protected final boolean detailed;
     protected final boolean headless;
-    protected final List<CurseFile> projects = new ArrayList<>();
+    protected final Map<CurseProject, CurseFile> projects = new HashMap<>();
 
     protected FileBase(CurseModpack pack, boolean detailed, boolean headless) {
         this.builder = new StringBuilder();
@@ -28,17 +26,17 @@ public abstract class FileBase {
         this.detailed = detailed;
         this.headless = headless;
         try {
-            Map<CurseFile, String> map = new HashMap<>();
             this.pack.files().forEach(file -> {
                 try {
-                    map.put(file, file.project().name());
+                    CurseProject project = file.project();
+                    this.projects.put(project, file);
+                    System.out.println("[" + this.pack.name() + "] " + (this.detailed ? file.displayName() : project.name()) + " found.");
                 } catch (CurseException e) {
                     e.printStackTrace();
                 }
             });
-            MapUtil.sortByValue(map).forEach((file, name) -> {
-                this.projects.add(file);
-            });
+            this.projects.entrySet().stream()
+                    .sorted((o1, o2) -> o1.getKey().name().compareTo(o2.getKey().toString()));
         } catch (CurseException e) {
             e.printStackTrace();
         }
@@ -46,7 +44,7 @@ public abstract class FileBase {
 
     public abstract void generateFile(String name, File output);
 
-    protected abstract String getFormattedProject(CurseFile file);
+    protected abstract String getFormattedProject(CurseProject project, CurseFile file);
 
     protected abstract String getFormattedAuthor(CurseMember member);
 

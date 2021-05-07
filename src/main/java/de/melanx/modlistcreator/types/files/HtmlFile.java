@@ -10,42 +10,40 @@ import de.melanx.modlistcreator.types.FileBase;
 import java.io.File;
 
 public class HtmlFile extends FileBase {
+
     public HtmlFile(CurseModpack pack, boolean detailed, boolean headless) {
         super(pack, detailed, headless);
     }
 
     @Override
     public void generateFile(String name, File output) {
-        if (!headless) {
+        System.out.println("[" + this.pack.name() + "] Putting everything together...");
+        if (!this.headless) {
             this.builder.append("<h2>");
             this.builder.append(this.getHeader());
             this.builder.append("</h2>");
             this.builder.append("\n\n");
         }
-        this.projects.forEach(file -> {
-            CurseProject project;
-            try {
-                project = file.project();
-            } catch (CurseException e) {
-                throw new IllegalStateException("Following file caused an error: " + file.toString(), e);
-            }
+
+        this.projects.forEach((project, file) -> {
             this.builder.append("<li>");
-            this.builder.append(this.getFormattedProject(file));
+            this.builder.append(this.getFormattedProject(project, file));
             this.builder.append(" (by ");
             this.builder.append(this.getFormattedAuthor(project.author()));
             this.builder.append(")</li>\n");
         });
+
         this.generateFinalFile(name, output);
     }
 
     @Override
-    protected String getFormattedProject(CurseFile file) {
+    protected String getFormattedProject(CurseProject project, CurseFile file) {
         try {
             return String.format("<a href=\"https://www.curseforge.com/minecraft/%s/%s%s\">%s</a>",
-                    file.project().categorySection().asCategory().slug(),
-                    file.project().slug(),
-                    this.detailed ? "/" + file.id() : "",
-                    this.detailed ? file.displayName() : file.project().name());
+                    project.categorySection().asCategory().slug(),
+                    project.slug(),
+                    this.detailed ? "/files/" + file.id() : "",
+                    this.detailed ? file.displayName() : project.name());
         } catch (CurseException e) {
             throw new IllegalStateException("Following file caused an error: " + file.toString(), e);
         }
