@@ -13,8 +13,9 @@
 
 Argument          | Output
 ----------------- | --------------------------------------------------
-`md` / `markdown` | Exports a **Markdown** files
-`html`            | Exports an **HTML** files
+`help`            | Shows descriptions to all arguments
+`md` / `markdown` | Exports **Markdown** files
+`html`            | Exports **HTML** files
 `detailed`        | Shows exact version of each mod
 `headless`        | Generates the file without pack name/version
 `nameFormat`      | Defines the name format

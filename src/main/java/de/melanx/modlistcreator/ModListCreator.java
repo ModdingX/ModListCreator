@@ -12,32 +12,40 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class ModListCreator {
     private static OptionSet optionSet;
 
-    public static void main(String[] args) throws CurseException, InterruptedException {
+    public static void main(String[] args) throws CurseException, InterruptedException, IOException {
         OptionParser parser = new OptionParser();
-        parser.accepts("detailed");
-        parser.accepts("headless");
-        parser.accepts("html");
-        parser.accepts("md");
-        parser.accepts("markdown");
-        OptionSpec<String> nameFormat = parser.accepts("nameFormat").withRequiredArg().ofType(String.class).defaultsTo("default");
-        OptionSpec<File> toolDir = parser.accepts("workingDir").withRequiredArg().ofType(File.class).defaultsTo(new File(Paths.get("").toUri()));
-        OptionSpec<File> packs = parser.accepts("input").withRequiredArg().ofType(File.class);
-        OptionSpec<File> output = parser.accepts("output").withRequiredArg().ofType(File.class);
-        OptionSpec<File> manifest = parser.accepts("manifest").withRequiredArg().ofType(File.class);
+        List<String> markdown = new ArrayList<>();
+        Collections.addAll(markdown, "md", "markdown");
+
+        parser.accepts("help", "Prints this overview");
+        parser.accepts("detailed", "Shows exact version of each mod");
+        parser.accepts("headless", "Generates the file without pack name/version");
+        parser.accepts("html", "Exports HTML files");
+        parser.acceptsAll(markdown, "Exports Markdown files");
+        OptionSpec<String> nameFormat = parser.accepts("nameFormat", "Allowed values: DEFAULT, VERSION, NAME and NAME_VERSION").withRequiredArg().ofType(String.class).defaultsTo("default");
+        OptionSpec<File> toolDir = parser.accepts("workingDir", "Defines the path where input and output should be").withRequiredArg().ofType(File.class).defaultsTo(new File(Paths.get("").toUri()));
+        OptionSpec<File> packs = parser.accepts("input", "Defines the input directory for multiple manifests").withRequiredArg().ofType(File.class);
+        OptionSpec<File> output = parser.accepts("output", "Defines the output directory for generated files").withRequiredArg().ofType(File.class);
+        OptionSpec<File> manifest = parser.accepts("manifest", "Defines manifest file").withRequiredArg().ofType(File.class);
         OptionSpec<String> empty = parser.nonOptions();
         optionSet = parser.parse(args);
 
+        if (optionSet.has("help")) {
+            printHelp(parser);
+            System.exit(0);
+        }
+
         if (optionSet.has(packs) && optionSet.has(manifest)) {
+            printHelp(parser);
             throw new IllegalArgumentException("Can't set a single manifest and a path with multiple manifests.");
         }
 
@@ -151,5 +159,11 @@ public class ModListCreator {
 
             throw throwable;
         }
+    }
+
+    private static void printHelp(OptionParser parser) throws IOException {
+        StringWriter writer = new StringWriter();
+        parser.printHelpOn(writer);
+        System.out.println(writer.toString());
     }
 }
