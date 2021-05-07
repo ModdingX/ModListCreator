@@ -10,13 +10,14 @@ import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.FileSystem;
+import java.nio.file.*;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class ModListCreator {
     private static OptionSet optionSet;
@@ -53,7 +54,7 @@ public class ModListCreator {
         if (!list.isEmpty()) {
             System.out.println("Completely ignored arguments: " + list);
         }
-        
+
         Set<Thread> joins = new HashSet<>();
 
         NameFormat format = NameFormat.get(getValue(optionSet, nameFormat));
@@ -63,6 +64,18 @@ public class ModListCreator {
         if (optionSet.has(packs)) {
             if (inDir.isDirectory()) {
                 for (File file : Objects.requireNonNull(inDir.listFiles())) {
+                    // Getting manifest.json from zip
+                    try (FileSystem fs = FileSystems.newFileSystem(file.toPath(), null)) {
+                        Path zipManifest = fs.getPath("manifest.json");
+                        if (Files.exists(zipManifest)) {
+                            File tempFile = Paths.get("manifest" + UUID.randomUUID() + ".json").toFile();
+                            Files.copy(zipManifest, tempFile.toPath());
+                            file = tempFile;
+                            file.deleteOnExit();
+                        }
+                    } catch (Exception e) {
+                    }
+
                     CurseModpack pack = CurseModpack.fromJSON(file.toPath());
                     generateForPack(
                             joins,
@@ -165,5 +178,30 @@ public class ModListCreator {
         StringWriter writer = new StringWriter();
         parser.printHelpOn(writer);
         System.out.println(writer.toString());
+    }
+
+    @Nullable
+    private static File getManifestFromZip(File file) {
+        try {
+
+
+
+
+            ZipFile zipFile = new ZipFile(file);
+            ZipEntry entry = zipFile.getEntry("manifest.json");
+            InputStream inputStream = zipFile.getInputStream(entry);
+            File manifest = File.createTempFile("manifest", ".json");
+            manifest.deleteOnExit();
+            FileWriter writer = new FileWriter(manifest);
+            byte[] buffer = new byte[inputStream.available()];
+            Files.write(manifest.toPath(), buffer);
+
+            System.out.println(manifest.getAbsolutePath());
+
+            return manifest;
+        } catch (IOException ignored) {
+        }
+
+        return null;
     }
 }

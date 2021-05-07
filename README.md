@@ -20,7 +20,7 @@ Argument          | Output
 `headless`        | Generates the file without pack name/version
 `nameFormat`      | Defines the name format
 `manifest`        | Defines manifest file
-`input`           | Defines the input directory for multiple manifests
+`input`           | Defines the input directory for multiple manifests/exported zips
 `output`          | Defines the output directory for generated files
 `workingDir`      | Defines the path where input and output should be
 
@@ -89,7 +89,7 @@ To use this argument, use the following command:
 
 If you don't set the input, it will just use the [manifest.json](#manifest).
 
-Otherwise, this will try to get each file in `examplePath` and creates an modlist in the [output](#output).
+Otherwise, this will try to get each file in `examplePath` and creates a modlist in the [output](#output).
 
 ### Output
 
@@ -107,6 +107,7 @@ To use this argument, use the following command:
 
 `$ java -jar ModListCreator-<version>.jar --manifest example.json`
 
+You can also define an exported zip containing a `manifest.json`. 
 If you don't set the manifest, it will just use the `manifest.json` in the [base directory](#workingDir).
 
 ### WorkingDir
