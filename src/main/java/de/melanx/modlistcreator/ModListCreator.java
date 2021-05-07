@@ -39,7 +39,7 @@ public class ModListCreator {
         OptionSpec<String> empty = parser.nonOptions();
         optionSet = parser.parse(args);
 
-        if (optionSet.has("help")) {
+        if (!optionSet.hasOptions() || optionSet.has("help")) {
             printHelp(parser);
             System.exit(0);
         }
