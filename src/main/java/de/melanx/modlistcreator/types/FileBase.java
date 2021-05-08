@@ -2,6 +2,7 @@ package de.melanx.modlistcreator.types;
 
 import com.therandomlabs.curseapi.CurseException;
 import com.therandomlabs.curseapi.file.CurseFile;
+import com.therandomlabs.curseapi.game.CurseCategory;
 import com.therandomlabs.curseapi.minecraft.modpack.CurseModpack;
 import com.therandomlabs.curseapi.project.CurseMember;
 import com.therandomlabs.curseapi.project.CurseProject;
@@ -10,15 +11,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public abstract class FileBase {
     protected final StringBuilder builder;
     protected final CurseModpack pack;
     protected final boolean detailed;
     protected final boolean headless;
-    protected final Map<CurseProject, CurseFile> projects = new HashMap<>();
+    protected final List<ProjectEntry> projects = new ArrayList<>();
 
     protected FileBase(CurseModpack pack, boolean detailed, boolean headless) {
         this.builder = new StringBuilder();
@@ -28,15 +30,14 @@ public abstract class FileBase {
         try {
             this.pack.files().forEach(file -> {
                 try {
-                    CurseProject project = file.project();
-                    this.projects.put(project, file);
-                    System.out.println("[\u001B[32m" + this.pack.name() + "\u001B[0m] \u001B[33m" + (this.detailed ? file.displayName() : project.name()) + "\u001B[0m found");
+                    ProjectEntry entry = new ProjectEntry(file);
+                    this.projects.add(entry);
+                    System.out.println("[\u001B[32m" + this.pack.name() + "\u001B[0m] \u001B[33m" + (this.detailed ? file.displayName() : entry.getProject().name()) + "\u001B[0m found");
                 } catch (CurseException e) {
                     e.printStackTrace();
                 }
             });
-            this.projects.entrySet().stream()
-                    .sorted((o1, o2) -> o1.getKey().name().compareTo(o2.getKey().toString()));
+            this.projects.sort(Comparator.comparing(o -> o.getProject().name()));
         } catch (CurseException e) {
             e.printStackTrace();
         }
@@ -76,5 +77,35 @@ public abstract class FileBase {
 
     protected String getHeader() {
         return String.format("%s - %s", this.pack.name(), this.pack.version());
+    }
+
+    public static class ProjectEntry {
+
+        private final CurseFile file;
+        private final CurseProject project;
+        private final CurseCategory category;
+
+        public ProjectEntry(CurseFile file) throws CurseException {
+            this.file = file;
+            this.project = file.project();
+            this.category = this.project.categorySection().asCategory();
+        }
+
+        public CurseFile getFile() {
+            return this.file;
+        }
+
+        public CurseProject getProject() {
+            return this.project;
+        }
+
+        public CurseCategory getCategory() {
+            return this.category;
+        }
+
+        @Override
+        public String toString() {
+            return this.project.name() + "(File: " + this.file.displayName() + ", Category: " + this.category.name() + ")";
+        }
     }
 }

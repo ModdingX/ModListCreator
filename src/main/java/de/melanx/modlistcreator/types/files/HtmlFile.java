@@ -25,11 +25,11 @@ public class HtmlFile extends FileBase {
             this.builder.append("\n\n");
         }
 
-        this.projects.forEach((project, file) -> {
+        this.projects.forEach(entry -> {
             this.builder.append("<li>");
-            this.builder.append(this.getFormattedProject(project, file));
+            this.builder.append(this.getFormattedProject(entry.getProject(), entry.getFile()));
             this.builder.append(" (by ");
-            this.builder.append(this.getFormattedAuthor(project.author()));
+            this.builder.append(this.getFormattedAuthor(entry.getProject().author()));
             this.builder.append(")</li>\n");
         });
 
