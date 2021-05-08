@@ -15,12 +15,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class ModListCreator {
     private static OptionSet optionSet;
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
     public static void main(String[] args) throws CurseException, InterruptedException, IOException {
+        System.out.println(LocalDateTime.now());
         OptionParser parser = new OptionParser();
         List<String> markdown = new ArrayList<>();
         Collections.addAll(markdown, "md", "markdown");
@@ -97,6 +101,7 @@ public class ModListCreator {
         for (Thread t : joins) {
             t.join();
         }
+        System.out.println(LocalDateTime.now());
         System.exit(0);
     }
 
