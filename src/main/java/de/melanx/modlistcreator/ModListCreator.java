@@ -10,14 +10,12 @@ import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.nio.file.FileSystem;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.*;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public class ModListCreator {
     private static OptionSet optionSet;
@@ -64,16 +62,10 @@ public class ModListCreator {
         if (optionSet.has(packs)) {
             if (inDir.isDirectory()) {
                 for (File file : Objects.requireNonNull(inDir.listFiles())) {
-                    // Getting manifest.json from zip
-                    try (FileSystem fs = FileSystems.newFileSystem(file.toPath(), null)) {
-                        Path zipManifest = fs.getPath("manifest.json");
-                        if (Files.exists(zipManifest)) {
-                            File tempFile = Paths.get("manifest" + UUID.randomUUID() + ".json").toFile();
-                            Files.copy(zipManifest, tempFile.toPath());
-                            file = tempFile;
-                            file.deleteOnExit();
-                        }
-                    } catch (Exception e) {
+                    File zip = getManifestFromZip(outDir, file);
+
+                    if (zip != null) {
+                        file = zip;
                     }
 
                     CurseModpack pack = CurseModpack.fromJSON(file.toPath());
@@ -88,8 +80,13 @@ public class ModListCreator {
                 throw new IllegalArgumentException("Path to packs is no directory: " + inDir.toString());
             }
         } else {
-            Path path = optionSet.has(manifest) ? getValue(optionSet, manifest).toPath() : Paths.get("manifest.json");
-            CurseModpack pack = CurseModpack.fromJSON(path);
+            File file = optionSet.has(manifest) ? getValue(optionSet, manifest) : Paths.get("manifest.json").toFile();
+            File zip = getManifestFromZip(outDir, file);
+
+            if (zip != null) {
+                file = zip;
+            }
+            CurseModpack pack = CurseModpack.fromJSON(file.toPath());
             generateForPack(
                     joins,
                     pack,
@@ -180,26 +177,24 @@ public class ModListCreator {
         System.out.println(writer.toString());
     }
 
-    @Nullable
-    private static File getManifestFromZip(File file) {
-        try {
+    private static File getManifestFromZip(File output, File input) {
+        // Getting manifest.json from zip
+        try (FileSystem fs = FileSystems.newFileSystem(input.toPath(), null)) {
+            Path zipManifest = fs.getPath("manifest.json");
+            if (Files.exists(zipManifest)) {
+                if (!output.exists()) {
+                    if (output.mkdirs()) {
+                        System.out.println("Created output directory: " + output);
+                    }
+                }
+                File tempFile = output.toPath().resolve("manifest" + UUID.randomUUID() + ".json").toFile();
+                Files.copy(zipManifest, tempFile.toPath());
+                input = tempFile;
+                input.deleteOnExit();
 
-
-
-
-            ZipFile zipFile = new ZipFile(file);
-            ZipEntry entry = zipFile.getEntry("manifest.json");
-            InputStream inputStream = zipFile.getInputStream(entry);
-            File manifest = File.createTempFile("manifest", ".json");
-            manifest.deleteOnExit();
-            FileWriter writer = new FileWriter(manifest);
-            byte[] buffer = new byte[inputStream.available()];
-            Files.write(manifest.toPath(), buffer);
-
-            System.out.println(manifest.getAbsolutePath());
-
-            return manifest;
-        } catch (IOException ignored) {
+                return input;
+            }
+        } catch (Exception e) {
         }
 
         return null;
