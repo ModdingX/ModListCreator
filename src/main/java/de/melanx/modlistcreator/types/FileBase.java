@@ -32,7 +32,7 @@ public abstract class FileBase {
                 try {
                     ProjectEntry entry = new ProjectEntry(file);
                     this.projects.add(entry);
-                    System.out.println("[\u001B[32m" + this.pack.name() + "\u001B[0m] \u001B[33m" + (this.detailed ? file.displayName() : entry.getProject().name()) + "\u001B[0m found");
+                    FileBase.log(this.pack.name(), "\u001B[33m" + (this.detailed ? file.displayName() : entry.getProject().name()) + "\u001B[0m found");
                 } catch (CurseException e) {
                     e.printStackTrace();
                 }
@@ -77,6 +77,14 @@ public abstract class FileBase {
 
     protected String getHeader() {
         return String.format("%s - %s", this.pack.name(), this.pack.version());
+    }
+
+    protected void log(String text) {
+        System.out.println("[\u001B[32m" + this.pack.name() + "\u001B[0m] " + text);
+    }
+
+    protected static void log(String pack, String text) {
+        System.out.println("[\u001B[32m" + pack + "\u001B[0m] " + text);
     }
 
     public static class ProjectEntry {
