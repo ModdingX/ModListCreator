@@ -1,11 +1,9 @@
 package de.melanx.modlistcreator.types.files;
 
-import com.therandomlabs.curseapi.CurseException;
-import com.therandomlabs.curseapi.file.CurseFile;
-import com.therandomlabs.curseapi.minecraft.modpack.CurseModpack;
-import com.therandomlabs.curseapi.project.CurseMember;
-import com.therandomlabs.curseapi.project.CurseProject;
+import de.melanx.modlistcreator.curse.CurseModpack;
 import de.melanx.modlistcreator.types.FileBase;
+import io.github.noeppi_noeppi.tools.cursewrapper.api.response.FileInfo;
+import io.github.noeppi_noeppi.tools.cursewrapper.api.response.ProjectInfo;
 
 import java.io.File;
 
@@ -25,11 +23,11 @@ public class HtmlFile extends FileBase {
             this.builder.append("\n\n");
         }
 
-        this.projects.forEach(entry -> {
+        this.pack.getFiles().forEach(entry -> {
             this.builder.append("<li>");
             this.builder.append(this.getFormattedProject(entry.getProject(), entry.getFile()));
             this.builder.append(" (by ");
-            this.builder.append(this.getFormattedAuthor(entry.getProject().author()));
+            this.builder.append(this.getFormattedAuthor(entry.getProject().owner()));
             this.builder.append(")</li>\n");
         });
 
@@ -37,21 +35,16 @@ public class HtmlFile extends FileBase {
     }
 
     @Override
-    protected String getFormattedProject(CurseProject project, CurseFile file) {
-        try {
-            return String.format("<a href=\"https://www.curseforge.com/minecraft/%s/%s%s\">%s</a>",
-                    project.categorySection().asCategory().slug(),
-                    project.slug(),
-                    this.detailed ? "/files/" + file.id() : "",
-                    this.detailed ? file.displayName() : project.name());
-        } catch (CurseException e) {
-            throw new IllegalStateException("Following file caused an error: " + file.toString(), e);
-        }
+    protected String getFormattedProject(ProjectInfo project, FileInfo file) {
+        return String.format("<a href=\"%s%s\">%s</a>",
+                project.website(),
+                this.detailed ? "/files/" + file.fileId() : "",
+                this.detailed ? file.name() : project.name());
     }
 
     @Override
-    protected String getFormattedAuthor(CurseMember member) {
-        return String.format("<a href=\"https://www.curseforge.com/members/%s/projects\">%s</a>", member.name().toLowerCase(), member.name());
+    protected String getFormattedAuthor(String member) {
+        return String.format("<a href=\"https://www.curseforge.com/members/%s/projects\">%s</a>", member.toLowerCase(), member);
     }
 
     @Override

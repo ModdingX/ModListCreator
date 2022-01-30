@@ -3,30 +3,32 @@ plugins {
 }
 
 group "de.melanx.modlistcreator"
-version "1.2.1"
+version "2.0.0"
 
 repositories {
 	mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
+	maven {
+		url "https://jitpack.io"
+	}
+	maven {
+		url "https://noeppi-noeppi.github.io/MinecraftUtilities/maven"
+	}
 }
 
 configurations {
 	shade
-	compile.extendsFrom shade
+	implementation.extendsFrom shade
 }
-configurations.compile.extendsFrom(configurations.shade)
+configurations.implementation.extendsFrom(configurations.shade)
 
 dependencies {
-	shade "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
-	shade "com.github.TheRandomLabs:CurseAPI-Minecraft:master-SNAPSHOT"
+	shade "io.github.noeppi_noeppi.tools:CurseWrapper:0.2"
 
 	shade "com.atlassian.commonmark:commonmark:0.13.1"
 	shade "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"
 }
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 jar {
 	manifest {

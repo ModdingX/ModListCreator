@@ -1,11 +1,11 @@
 package de.melanx.modlistcreator;
 
-import com.therandomlabs.curseapi.CurseException;
-import com.therandomlabs.curseapi.minecraft.modpack.CurseModpack;
+import de.melanx.modlistcreator.curse.CurseModpack;
 import de.melanx.modlistcreator.types.FileBase;
 import de.melanx.modlistcreator.types.files.HtmlFile;
 import de.melanx.modlistcreator.types.files.MarkdownFile;
 import de.melanx.modlistcreator.util.NameFormat;
+import io.github.noeppi_noeppi.tools.cursewrapper.api.CurseWrapper;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -14,13 +14,16 @@ import joptsimple.OptionSpec;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 
 public class ModListCreator {
     private static OptionSet optionSet;
+    private static CurseWrapper wrapper;
 
-    public static void main(String[] args) throws CurseException, InterruptedException, IOException {
+    public static void main(String[] args) throws InterruptedException, IOException {
+        wrapper = new CurseWrapper(URI.create("https://curse.melanx.de/"));
         OptionParser parser = new OptionParser();
         List<String> markdown = new ArrayList<>();
         Collections.addAll(markdown, "md", "markdown");
@@ -68,7 +71,12 @@ public class ModListCreator {
                         file = zip;
                     }
 
-                    CurseModpack pack = CurseModpack.fromJSON(file.toPath());
+                    CurseModpack pack = CurseModpack.fromManifest(file);
+
+                    if (pack == null) {
+                        continue;
+                    }
+
                     generateForPack(
                             joins,
                             pack,
@@ -86,18 +94,25 @@ public class ModListCreator {
             if (zip != null) {
                 file = zip;
             }
-            CurseModpack pack = CurseModpack.fromJSON(file.toPath());
-            generateForPack(
-                    joins,
-                    pack,
-                    getFileName(format, pack),
-                    outDir
-            );
+            CurseModpack pack = CurseModpack.fromManifest(file);
+
+            if (pack != null) {
+                generateForPack(
+                        joins,
+                        pack,
+                        getFileName(format, pack),
+                        outDir
+                );
+            }
         }
         for (Thread t : joins) {
             t.join();
         }
         System.exit(0);
+    }
+
+    public static CurseWrapper getWrapper() {
+        return wrapper;
     }
 
     private static void generateForPack(Set<Thread> joins, CurseModpack pack, String name, File output) {
@@ -144,11 +159,11 @@ public class ModListCreator {
     private static String getFileName(NameFormat format, CurseModpack pack, String prefix) {
         switch (format) {
             case NAME:
-                return pack.name();
+                return pack.getName();
             case VERSION:
-                return pack.version();
+                return pack.getVersion();
             case NAME_VERSION:
-                return pack.name() + " - " + pack.version();
+                return pack.getName() + " - " + pack.getVersion();
             default:
             case DEFAULT:
                 return !prefix.isEmpty() ? prefix + "-modlist" : "modlist";
@@ -179,7 +194,7 @@ public class ModListCreator {
 
     private static File getManifestFromZip(File output, File input) {
         // Getting manifest.json from zip
-        try (FileSystem fs = FileSystems.newFileSystem(input.toPath(), null)) {
+        try (FileSystem fs = FileSystems.newFileSystem(input.toPath(), (ClassLoader) null)) {
             Path zipManifest = fs.getPath("manifest.json");
             if (Files.exists(zipManifest)) {
                 if (!output.exists()) {
