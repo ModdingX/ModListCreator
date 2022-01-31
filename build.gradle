@@ -3,7 +3,7 @@ plugins {
 }
 
 group "de.melanx.modlistcreator"
-version "2.0.0"
+version "2.0.1"
 
 repositories {
 	mavenCentral()
@@ -22,7 +22,7 @@ configurations {
 configurations.implementation.extendsFrom(configurations.shade)
 
 dependencies {
-	shade "io.github.noeppi_noeppi.tools:CurseWrapper:0.2"
+	shade "io.github.noeppi_noeppi.tools:CurseWrapper:0.3"
 
 	shade "com.atlassian.commonmark:commonmark:0.13.1"
 	shade "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"

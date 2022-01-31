@@ -39,7 +39,11 @@ public class CurseModpack {
             loaders.add(new ModLoader(loader.get("id").getAsString(), loader.get("primary").getAsBoolean()));
         }
         this.minecraft = new Minecraft(version, loaders);
-        this.version = json.get("version").getAsString();
+        if (json.has("version")) {
+            this.version = json.get("version").getAsString();
+        } else {
+            this.version = "undefined version";
+        }
         this.name = json.get("name").getAsString();
         for (JsonElement fileElement : json.get("files").getAsJsonArray()) {
             JsonObject file = fileElement.getAsJsonObject();
@@ -54,7 +58,6 @@ public class CurseModpack {
     public static CurseModpack fromManifest(File file) {
         try {
             JsonReader reader = new JsonReader(new FileReader(file));
-            reader.setLenient(true);
             JsonElement jsonElement = JsonParser.parseReader(reader);
             return new CurseModpack(jsonElement);
         } catch (IOException | NullPointerException e) {
