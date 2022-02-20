@@ -1,6 +1,6 @@
 # ModListCreator
 
-[![Total downloads](https://img.shields.io/github/downloads/MelanX/ModListCreator/total.svg)](https://www.github.com/MelanX/ModListCreator/releases/)
+[![Total downloads](https://img.shields.io/github/downloads/ModdingX/ModListCreator/total.svg)](https://www.github.com/ModdingX/ModListCreator/releases/)
 
 ## How to use
 
@@ -126,7 +126,7 @@ If you don't set this, it will use the location of you Jar as base directory.
 
 ## How to get
 
-1. [Download here](https://github.com/MelanX/ModListCreator/releases)
+1. [Download here](https://github.com/ModdingX/ModListCreator/releases)
 
 OR
 
