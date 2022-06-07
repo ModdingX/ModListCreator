@@ -1,11 +1,11 @@
-package de.melanx.modlistcreator.curse;
+package org.moddingx.modlistcreator.curse;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-import de.melanx.modlistcreator.ModListCreator;
-import de.melanx.modlistcreator.types.FileBase;
+import org.moddingx.modlistcreator.ModListCreator;
+import org.moddingx.modlistcreator.types.FileBase;
 import io.github.noeppi_noeppi.tools.cursewrapper.api.CurseWrapper;
 import io.github.noeppi_noeppi.tools.cursewrapper.api.response.FileInfo;
 import io.github.noeppi_noeppi.tools.cursewrapper.api.response.ProjectInfo;

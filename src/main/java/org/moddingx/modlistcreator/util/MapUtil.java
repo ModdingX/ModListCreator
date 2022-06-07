@@ -1,4 +1,4 @@
-package de.melanx.modlistcreator.util;
+package org.moddingx.modlistcreator.util;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
