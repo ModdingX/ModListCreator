@@ -1,11 +1,11 @@
 package org.moddingx.modlistcreator;
 
+import org.moddingx.cursewrapper.api.CurseWrapper;
 import org.moddingx.modlistcreator.curse.CurseModpack;
 import org.moddingx.modlistcreator.types.FileBase;
 import org.moddingx.modlistcreator.types.files.HtmlFile;
 import org.moddingx.modlistcreator.types.files.MarkdownFile;
 import org.moddingx.modlistcreator.util.NameFormat;
-import io.github.noeppi_noeppi.tools.cursewrapper.api.CurseWrapper;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;

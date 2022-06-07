@@ -8,13 +8,11 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
 	mavenCentral()
-	maven {
-		url "https://noeppi-noeppi.github.io/MinecraftUtilities/maven"
-	}
+	maven { url "https://maven.moddingx.org" }
 }
 
 dependencies {
-	implementation "io.github.noeppi_noeppi.tools:CurseWrapper:0.3"
+	implementation "org.moddingx:CurseWrapper:2.0"
 
 	implementation 'com.atlassian.commonmark:commonmark:0.17.0'
 	implementation "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"

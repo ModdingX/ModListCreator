@@ -1,9 +1,9 @@
 package org.moddingx.modlistcreator.types.files;
 
+import org.moddingx.cursewrapper.api.response.FileInfo;
+import org.moddingx.cursewrapper.api.response.ProjectInfo;
 import org.moddingx.modlistcreator.curse.CurseModpack;
 import org.moddingx.modlistcreator.types.FileBase;
-import io.github.noeppi_noeppi.tools.cursewrapper.api.response.FileInfo;
-import io.github.noeppi_noeppi.tools.cursewrapper.api.response.ProjectInfo;
 
 import java.io.File;
 
