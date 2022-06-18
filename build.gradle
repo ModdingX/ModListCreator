@@ -1,31 +1,21 @@
 plugins {
     id "java"
+    id "maven-publish"
 }
 
-group "de.melanx.modlistcreator"
-version "2.0.1"
+group "org.moddingx"
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
 	mavenCentral()
-	maven {
-		url "https://jitpack.io"
-	}
-	maven {
-		url "https://noeppi-noeppi.github.io/MinecraftUtilities/maven"
-	}
+	maven { url "https://maven.moddingx.org" }
 }
-
-configurations {
-	shade
-	implementation.extendsFrom shade
-}
-configurations.implementation.extendsFrom(configurations.shade)
 
 dependencies {
-	shade "io.github.noeppi_noeppi.tools:CurseWrapper:0.3"
+	implementation "org.moddingx:CurseWrapper:2.0"
 
-	shade "com.atlassian.commonmark:commonmark:0.13.1"
-	shade "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"
+	implementation 'com.atlassian.commonmark:commonmark:0.17.0'
+	implementation "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -33,12 +23,48 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 jar {
 	manifest {
 		attributes([
-		        "Main-Class": "de.melanx.modlistcreator.ModListCreator"
+		        "Main-Class": "org.moddingx.modlistcreator.ModListCreator"
 		])
 	}
-	configurations.shade.each { dependency ->
-		from(project.zipTree(dependency)) {
-			exclude 'META-INF', 'META-INF/**'
+}
+
+task fatjar(type: Jar) {
+	archiveClassifier = "fatjar"
+	manifest = jar.manifest
+	with jar
+}
+build.dependsOn fatjar
+
+task configureFatJar {
+	doLast {
+		configurations.runtimeClasspath.each { dep ->
+			fatjar.from(project.zipTree(dep)) {
+				exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'module-info.class'
+				duplicatesStrategy DuplicatesStrategy.INCLUDE
+			}
 		}
 	}
+	outputs.upToDateWhen { false }
+}
+fatjar.dependsOn configureFatJar
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url '../moddingx/maven'
+        }
+    }
 }

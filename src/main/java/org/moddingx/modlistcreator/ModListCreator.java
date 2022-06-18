@@ -1,11 +1,11 @@
-package de.melanx.modlistcreator;
+package org.moddingx.modlistcreator;
 
-import de.melanx.modlistcreator.curse.CurseModpack;
-import de.melanx.modlistcreator.types.FileBase;
-import de.melanx.modlistcreator.types.files.HtmlFile;
-import de.melanx.modlistcreator.types.files.MarkdownFile;
-import de.melanx.modlistcreator.util.NameFormat;
-import io.github.noeppi_noeppi.tools.cursewrapper.api.CurseWrapper;
+import org.moddingx.cursewrapper.api.CurseWrapper;
+import org.moddingx.modlistcreator.curse.CurseModpack;
+import org.moddingx.modlistcreator.types.FileBase;
+import org.moddingx.modlistcreator.types.files.HtmlFile;
+import org.moddingx.modlistcreator.types.files.MarkdownFile;
+import org.moddingx.modlistcreator.util.NameFormat;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -85,7 +85,7 @@ public class ModListCreator {
                     );
                 }
             } else {
-                throw new IllegalArgumentException("Path to packs is no directory: " + inDir.toString());
+                throw new IllegalArgumentException("Path to packs is no directory: " + inDir);
             }
         } else {
             File file = optionSet.has(manifest) ? getValue(optionSet, manifest) : Paths.get("manifest.json").toFile();
@@ -157,25 +157,19 @@ public class ModListCreator {
     }
 
     private static String getFileName(NameFormat format, CurseModpack pack, String prefix) {
-        switch (format) {
-            case NAME:
-                return pack.getName();
-            case VERSION:
-                return pack.getVersion();
-            case NAME_VERSION:
-                return pack.getName() + " - " + pack.getVersion();
-            default:
-            case DEFAULT:
-                return !prefix.isEmpty() ? prefix + "-modlist" : "modlist";
-        }
+        return switch (format) {
+            case NAME -> pack.getName();
+            case VERSION -> pack.getVersion();
+            case NAME_VERSION -> pack.getName() + " - " + pack.getVersion();
+            case DEFAULT -> !prefix.isEmpty() ? prefix + "-modlist" : "modlist";
+        };
     }
 
     private static <T> T getValue(OptionSet set, OptionSpec<T> option) {
         try {
             return set.valueOf(option);
         } catch (Throwable throwable) {
-            if (option instanceof ArgumentAcceptingOptionSpec) {
-                ArgumentAcceptingOptionSpec<T> spec = (ArgumentAcceptingOptionSpec<T>) option;
+            if (option instanceof ArgumentAcceptingOptionSpec<T> spec) {
                 List<T> list = spec.defaultValues();
                 if (!list.isEmpty()) {
                     return list.get(0);
@@ -189,7 +183,7 @@ public class ModListCreator {
     private static void printHelp(OptionParser parser) throws IOException {
         StringWriter writer = new StringWriter();
         parser.printHelpOn(writer);
-        System.out.println(writer.toString());
+        System.out.println(writer);
     }
 
     private static File getManifestFromZip(File output, File input) {
@@ -210,6 +204,7 @@ public class ModListCreator {
                 return input;
             }
         } catch (Exception e) {
+            //
         }
 
         return null;

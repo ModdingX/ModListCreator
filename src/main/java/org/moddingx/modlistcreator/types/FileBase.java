@@ -1,8 +1,8 @@
-package de.melanx.modlistcreator.types;
+package org.moddingx.modlistcreator.types;
 
-import de.melanx.modlistcreator.curse.CurseModpack;
-import io.github.noeppi_noeppi.tools.cursewrapper.api.response.FileInfo;
-import io.github.noeppi_noeppi.tools.cursewrapper.api.response.ProjectInfo;
+import org.moddingx.cursewrapper.api.response.FileInfo;
+import org.moddingx.cursewrapper.api.response.ProjectInfo;
+import org.moddingx.modlistcreator.curse.CurseModpack;
 
 import java.io.File;
 import java.io.FileWriter;

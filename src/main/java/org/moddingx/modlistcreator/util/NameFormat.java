@@ -1,4 +1,4 @@
-package de.melanx.modlistcreator.util;
+package org.moddingx.modlistcreator.util;
 
 public enum NameFormat {
     DEFAULT,
