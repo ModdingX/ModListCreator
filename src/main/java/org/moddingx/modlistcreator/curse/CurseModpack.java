@@ -45,12 +45,26 @@ public class CurseModpack {
             this.version = "undefined version";
         }
         this.name = json.get("name").getAsString();
+
+        Set<Integer> projectIds = new HashSet<>();
+        json.get("files").getAsJsonArray().forEach(file -> {
+            projectIds.add(file.getAsJsonObject().get("projectID").getAsInt());
+        });
+        Map <Integer, ProjectInfo> projectInfoMap = wrapper.getProjects(projectIds);
+
+        int i = 0;
+        final Integer total = json.get("files").getAsJsonArray().size();
+
         for (JsonElement fileElement : json.get("files").getAsJsonArray()) {
             JsonObject file = fileElement.getAsJsonObject();
             FileInfo fileInfo = wrapper.getFile(file.get("projectID").getAsInt(), file.get("fileID").getAsInt());
-            ProjectEntry e = new ProjectEntry(fileInfo);
+            ProjectEntry e = new ProjectEntry(fileInfo, projectInfoMap.get(file.get("projectID").getAsInt()));
             this.files.add(e);
-            FileBase.log(this.name, "\u001B[33m" + (e.getProject().name()) + "\u001B[0m found");
+
+            // ' 001/354 '
+            String progress = String.format("%1$" + (String.valueOf(total).length() * 2 + 1) + "s", ++i + "/" + total).replace(' ', '0') + " ";
+
+            FileBase.log(this.name, progress + "\u001B[33m" + (e.getProject().name()) + "\u001B[0m found");
         }
         this.files.sort(Comparator.comparing(o -> o.getProject().name().toLowerCase(Locale.ROOT)));
     }
@@ -100,9 +114,15 @@ public class CurseModpack {
         private final FileInfo file;
         private final ProjectInfo project;
 
+        @Deprecated
         public ProjectEntry(FileInfo file) throws IOException {
             this.file = file;
             this.project = ModListCreator.getWrapper().getProject(file.projectId());
+        }
+
+        public ProjectEntry(FileInfo file, ProjectInfo project) {
+            this.file = file;
+            this.project = project;
         }
 
         public FileInfo getFile() {

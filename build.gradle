@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-	implementation "org.moddingx:CurseWrapper:2.0"
+	implementation "org.moddingx:CurseWrapper:2.1"
 
 	implementation 'com.atlassian.commonmark:commonmark:0.17.0'
 	implementation "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"
