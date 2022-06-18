@@ -50,10 +50,10 @@ public class CurseModpack {
         json.get("files").getAsJsonArray().forEach(file -> {
             projectIds.add(file.getAsJsonObject().get("projectID").getAsInt());
         });
-        Map <Integer, ProjectInfo> projectInfoMap = wrapper.getProjects(projectIds);
+        Map<Integer, ProjectInfo> projectInfoMap = wrapper.getProjects(projectIds);
 
         int i = 0;
-        final Integer total = json.get("files").getAsJsonArray().size();
+        final int total = projectIds.size();
 
         for (JsonElement fileElement : json.get("files").getAsJsonArray()) {
             JsonObject file = fileElement.getAsJsonObject();
