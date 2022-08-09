@@ -1,15 +1,17 @@
 package org.moddingx.modlistcreator;
 
-import org.moddingx.cursewrapper.api.CurseWrapper;
-import org.moddingx.modlistcreator.curse.CurseModpack;
-import org.moddingx.modlistcreator.types.FileBase;
-import org.moddingx.modlistcreator.types.files.HtmlFile;
-import org.moddingx.modlistcreator.types.files.MarkdownFile;
-import org.moddingx.modlistcreator.util.NameFormat;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.moddingx.cursewrapper.api.CurseWrapper;
+import org.moddingx.modlistcreator.platform.Modpack;
+import org.moddingx.modlistcreator.types.FileBase;
+import org.moddingx.modlistcreator.types.files.HtmlFile;
+import org.moddingx.modlistcreator.types.files.MarkdownFile;
+import org.moddingx.modlistcreator.util.NameFormat;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,13 +19,22 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ModListCreator {
+
+    public static Gson GSON;
     private static OptionSet optionSet;
-    private static CurseWrapper wrapper;
+    private static final CurseWrapper wrapper = new CurseWrapper(URI.create("https://curse.melanx.de/"));
+    public static final Predicate<File> filePredicate = file -> file.getName().equals("modrinth.index.json") || file.getName().equals("manifest.json");
+
+    static {
+        GsonBuilder builder = new GsonBuilder();
+        builder.disableHtmlEscaping();
+        GSON = builder.create();
+    }
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        wrapper = new CurseWrapper(URI.create("https://curse.melanx.de/"));
         OptionParser parser = new OptionParser();
         List<String> markdown = new ArrayList<>();
         Collections.addAll(markdown, "md", "markdown");
@@ -71,7 +82,10 @@ public class ModListCreator {
                         file = zip;
                     }
 
-                    CurseModpack pack = CurseModpack.fromManifest(file);
+                    if (!filePredicate.test(file) && file != zip) {
+                        continue;
+                    }
+                    Modpack pack = Modpack.fromJson(file);
 
                     if (pack == null) {
                         continue;
@@ -89,12 +103,16 @@ public class ModListCreator {
             }
         } else {
             File file = optionSet.has(manifest) ? getValue(optionSet, manifest) : Paths.get("manifest.json").toFile();
+            if (file == null) {
+                file = Paths.get("modrinth.index.json").toFile();
+            }
+
             File zip = getManifestFromZip(outDir, file);
 
             if (zip != null) {
                 file = zip;
             }
-            CurseModpack pack = CurseModpack.fromManifest(file);
+            Modpack pack = Modpack.fromJson(file);
 
             if (pack != null) {
                 generateForPack(
@@ -115,7 +133,7 @@ public class ModListCreator {
         return wrapper;
     }
 
-    private static void generateForPack(Set<Thread> joins, CurseModpack pack, String name, File output) {
+    private static void generateForPack(Set<Thread> joins, Modpack pack, String name, File output) {
         boolean alreadyGenerated = false;
         boolean detailed = optionSet.has("detailed");
         boolean headless = optionSet.has("headless");
@@ -152,15 +170,15 @@ public class ModListCreator {
         }
     }
 
-    private static String getFileName(NameFormat format, CurseModpack pack) {
+    private static String getFileName(NameFormat format, Modpack pack) {
         return getFileName(format, pack, "");
     }
 
-    private static String getFileName(NameFormat format, CurseModpack pack, String prefix) {
+    private static String getFileName(NameFormat format, Modpack pack, String prefix) {
         return switch (format) {
-            case NAME -> pack.getName();
-            case VERSION -> pack.getVersion();
-            case NAME_VERSION -> pack.getName() + " - " + pack.getVersion();
+            case NAME -> pack.title();
+            case VERSION -> pack.version();
+            case NAME_VERSION -> pack.title() + " - " + pack.version();
             case DEFAULT -> !prefix.isEmpty() ? prefix + "-modlist" : "modlist";
         };
     }
@@ -190,6 +208,10 @@ public class ModListCreator {
         // Getting manifest.json from zip
         try (FileSystem fs = FileSystems.newFileSystem(input.toPath(), (ClassLoader) null)) {
             Path zipManifest = fs.getPath("manifest.json");
+            if (!Files.exists(zipManifest)) {
+                zipManifest = fs.getPath("modrinth.index.json");
+            }
+
             if (Files.exists(zipManifest)) {
                 if (!output.exists()) {
                     if (output.mkdirs()) {

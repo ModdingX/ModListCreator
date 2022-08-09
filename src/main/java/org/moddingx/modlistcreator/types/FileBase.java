@@ -1,8 +1,6 @@
 package org.moddingx.modlistcreator.types;
 
-import org.moddingx.cursewrapper.api.response.FileInfo;
-import org.moddingx.cursewrapper.api.response.ProjectInfo;
-import org.moddingx.modlistcreator.curse.CurseModpack;
+import org.moddingx.modlistcreator.platform.Modpack;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,11 +9,11 @@ import java.nio.file.Paths;
 
 public abstract class FileBase {
     protected final StringBuilder builder;
-    protected final CurseModpack pack;
+    protected final Modpack pack;
     protected final boolean detailed;
     protected final boolean headless;
 
-    protected FileBase(CurseModpack pack, boolean detailed, boolean headless) {
+    protected FileBase(Modpack pack, boolean detailed, boolean headless) {
         this.builder = new StringBuilder();
         this.pack = pack;
         this.detailed = detailed;
@@ -24,7 +22,7 @@ public abstract class FileBase {
 
     public abstract void generateFile(String name, File output);
 
-    protected abstract String getFormattedProject(ProjectInfo project, FileInfo file);
+    protected abstract String getFormattedProject(Modpack.ProjectEntry project);
 
     protected abstract String getFormattedAuthor(String member);
 
@@ -55,11 +53,11 @@ public abstract class FileBase {
     }
 
     protected String getHeader() {
-        return String.format("%s - %s", this.pack.getName(), this.pack.getVersion());
+        return String.format("%s - %s", this.pack.title(), this.pack.version());
     }
 
     protected void log(String text) {
-        System.out.println("[\u001B[32m" + this.pack.getName() + "\u001B[0m] " + text);
+        System.out.println("[\u001B[32m" + this.pack.title() + "\u001B[0m] " + text);
     }
 
     public static void log(String pack, String text) {

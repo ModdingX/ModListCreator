@@ -30,3 +30,4 @@ output/
 modlist.html
 modlist.md
 manifest.json
+*.mrpack
