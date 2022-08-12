@@ -1,77 +1,91 @@
 package org.moddingx.modlistcreator.platform;
 
-import com.google.gson.JsonObject;
-import org.moddingx.modlistcreator.ModListCreator;
-import org.moddingx.modlistcreator.platform.curse.CurseModpack;
-import org.moddingx.modlistcreator.platform.modrinth.ModrinthModpack;
+import com.google.gson.JsonElement;
+import org.moddingx.modlistcreator.modlist.ModListCreator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
-public abstract class Modpack {
-
-    protected final List<ProjectEntry> files = new ArrayList<>();
-
-    public abstract int formatVersion();
-
-    public abstract String title();
-
-    public abstract Minecraft minecraft();
-
-    public abstract String version();
-
-    public abstract PackType packType();
-
-    public abstract Modpack load(JsonObject json);
-
-    public abstract List<ProjectEntry> files();
-
-    public abstract String authorLink(String author);
-
-    public String game() {
-        return "minecraft";
+public interface Modpack {
+    
+    String title();
+    Minecraft minecraft();
+    String version();
+    List<File> files();
+    
+    static Modpack loadZip(Path path) throws IOException {
+        try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + path.toAbsolutePath().normalize().toUri()), Map.of())) {
+            for (Type type : Type.values()) {
+                Path manifest = fs.getPath("/").resolve(type.manifestPath).toAbsolutePath().normalize();
+                if (Files.isRegularFile(manifest)) {
+                    return load(manifest, type);
+                }
+            }
+            throw new IOException("Failed to load modpack: Format unknown, no manifest file found in archive");
+        }
     }
-
-    public static Modpack fromJson(File file) {
-        try {
-            return Modpack.fromJson(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Unable to load file", e);
+    
+    static Modpack load(Path path) throws IOException {
+        JsonElement json;
+        try (Reader reader = Files.newBufferedReader(path)) {
+            json = ModListCreator.GSON.fromJson(reader, JsonElement.class);
+        }
+        for (Type type : Type.values()) {
+            Optional<? extends Modpack> pack = type.factory.apply(json);
+            if (pack.isPresent()) {
+                return pack.get();
+            }
+        }
+        throw new IOException("Failed to load modpack: Format unknown, manifest file has no known format");
+    }
+    
+    static Modpack load(Path path, Type type) throws IOException {
+        JsonElement json;
+        try (Reader reader = Files.newBufferedReader(path)) {
+            json = ModListCreator.GSON.fromJson(reader, JsonElement.class);
+        }
+        Optional<? extends Modpack> pack = type.factory.apply(json);
+        if (pack.isEmpty()) {
+            throw new IOException("Invalid " + type.name().toLowerCase(Locale.ROOT) + " modpack: Invalid manifest");
+        } else {
+            return pack.get();
         }
     }
 
-    public static Modpack fromJson(Reader reader) {
-        return Modpack.fromJson(ModListCreator.GSON.fromJson(reader, JsonObject.class));
+    interface File {
+        String projectSlug();
+        String projectName();
+        String fileName();
+        String author();
+        URI projectWebsite();
+        URI fileWebsite();
+        URI authorWebsite();
     }
+    
+    record DefaultFile(String projectSlug, String projectName, String fileName, String author, URI projectWebsite, URI fileWebsite, URI authorWebsite) implements File {}
 
-    public static Modpack fromJson(JsonObject json) {
-        if (json.has("manifestVersion") && json.get("manifestVersion").getAsInt() == CurseModpack.FORMAT_VERSION) {
-            return new CurseModpack().load(json);
+    record Minecraft(String version, String loader, String loaderVersion) {}
+
+    enum Type {
+        CURSEFORGE("manifest.json", CurseModpack::load),
+        MODRINTH("modrinth.index.json", ModrinthModpack::load);
+        
+        private final String manifestPath;
+        private final IOFunction<JsonElement, Optional<? extends Modpack>> factory;
+
+        Type(String manifestPath, IOFunction<JsonElement, Optional<? extends Modpack>> factory) {
+            this.manifestPath = manifestPath;
+            this.factory = factory;
         }
-
-        if (json.has("formatVersion") && json.get("formatVersion").getAsInt() == ModrinthModpack.FORMAT_VERSION) {
-            return new ModrinthModpack().load(json);
-        }
-
-        throw new IllegalStateException("Json does not match any known modpack platform.");
     }
-
-    public record ProjectEntry(String projectName, String fileName, String author, URI website, String fileId) {
-    }
-
-    public record Minecraft(String version, ModLoader loaders) {
-    }
-
-    public record ModLoader(String type, String version) {
-    }
-
-    public enum PackType {
-        CURSEFORGE,
-        MODRINTH
+    
+    @FunctionalInterface
+    interface IOFunction<T, R> {
+        R apply(T arg) throws IOException;
     }
 }
