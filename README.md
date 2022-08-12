@@ -23,13 +23,13 @@ OR
 
 ## Arguments you could use
 
-| Argument   | Output                                                                                                                                                                  |
-|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| no-header  | Generates the file without pack name and version                                                                                                                        |
-| detailed   | Shows exact version of each mod                                                                                                                                         |
-| format     | The output format to use (`txt`, `html`, or `md` (default))                                                                                                             |
-| **output** | Defines the output path for generated files. If --pattern is set, describes a directory for output files, else a concrete file. Use `folder/*` for all files in folder. |
-| pattern    | Defines the output file name pattern. %n is replaced with pack name, %v with pack version.                                                                              |
+| Argument   | Output                                                                                                                          |
+|------------|---------------------------------------------------------------------------------------------------------------------------------|
+| no-header  | Generates the file without pack name and version                                                                                |
+| detailed   | Shows exact version of each mod                                                                                                 |
+| format     | The output format to use (`txt`, `html`, or `md` (default))                                                                     |
+| **output** | Defines the output path for generated files. If --pattern is set, describes a directory for output files, else a concrete file. |
+| pattern    | Defines the output file name pattern. %n is replaced with pack name, %v with pack version.                                      |
 
 ## Examples
 ### Detailed
