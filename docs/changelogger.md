@@ -11,7 +11,7 @@
 
 |  Argument  | Description                                                              |
 |:----------:|--------------------------------------------------------------------------|
-|    old     | Defines the old modpack zip or json file (defaults to `./old.json`)      |
-|    new     | Defines the new modpack zip or json file (defaults to `./new.json`)      |
-|   output   | Defines the output file name without extension (defaults to `changelog`) |
-|   format   | The output format to use (`plain_text`, `html`, or `markdown` (default)  |
+|  **old**   | Defines the old modpack zip or json file                                 |
+|  **new**   | Defines the new modpack zip or json file                                 |
+| **output** | Defines the output file name                                             |
+|   format   | The output format to use (`plain_text`, `html`, or `markdown` (default)) |

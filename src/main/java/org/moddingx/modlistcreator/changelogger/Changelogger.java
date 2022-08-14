@@ -9,6 +9,7 @@ import joptsimple.util.PathProperties;
 import org.moddingx.modlistcreator.output.OutputTarget;
 import org.moddingx.modlistcreator.platform.Modpack;
 import org.moddingx.modlistcreator.util.EnumConverters;
+import org.moddingx.modlistcreator.util.OptionUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,14 +22,17 @@ public class Changelogger {
 
     public static void run(String[] args) throws IOException {
         OptionParser options = new OptionParser();
-        OptionSpec<Path> specOld = options.acceptsAll(List.of("o", "old"), "Defines the old modpack zip or json file").withOptionalArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).defaultsTo(Paths.get("old.json"));
-        OptionSpec<Path> specNew = options.acceptsAll(List.of("n", "new"), "Defines the new modpack zip or json file").withOptionalArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING)).defaultsTo(Paths.get("new.json"));
-        OptionSpec<String> specOutput = options.accepts("output", "Defines the output file name without extension").withOptionalArg().ofType(String.class).defaultsTo("changelog");
-        OptionSpec<OutputTarget.Type> specFormat = options.accepts("format", "The output format to use").withRequiredArg().withValuesConvertedBy(EnumConverters.enumArg(OutputTarget.Type.class)).withValuesSeparatedBy(",").defaultsTo(OutputTarget.Type.MARKDOWN);
+        OptionSpec<Path> specOld = options.acceptsAll(List.of("o", "old"), "Defines the old modpack zip or json file").withOptionalArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
+        OptionSpec<Path> specNew = options.acceptsAll(List.of("n", "new"), "Defines the new modpack zip or json file").withOptionalArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
+        OptionSpec<String> specOutput = options.accepts("output", "Defines the output file name").withOptionalArg().ofType(String.class);
+        OptionSpec<OutputTarget.Type> specFormat = options.accepts("format", "The output format to use").withRequiredArg().withValuesConvertedBy(EnumConverters.enumArg(OutputTarget.Type.class)).defaultsTo(OutputTarget.Type.MARKDOWN);
 
         OptionSet set;
         try {
             set = options.parse(args);
+            if (!set.has(specOld)) OptionUtil.missing(options, specOld);
+            if (!set.has(specNew)) OptionUtil.missing(options, specNew);
+            if (!set.has(specOutput)) OptionUtil.missing(options, specOutput);
         } catch (OptionException e) {
             System.err.println(e.getMessage() + "\n");
             options.printHelpOn(System.err);
@@ -38,11 +42,8 @@ public class Changelogger {
 
         Modpack from = Modpack.fromPath(set.valueOf(specOld));
         Modpack to = Modpack.fromPath(set.valueOf(specNew));
-
-        for (OutputTarget.Type outputType : set.valuesOf(specFormat)) {
-            Path output = Paths.get(set.valueOf(specOutput) + "." + outputType.extension);
-            Files.writeString(output, ChangelogFormatter.format(from, to, outputType), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        }
+        Path output = Paths.get(set.valueOf(specOutput));
+        Files.writeString(output, ChangelogFormatter.format(from, to, set.valueOf(specFormat)), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         System.exit(0);
     }
 }
