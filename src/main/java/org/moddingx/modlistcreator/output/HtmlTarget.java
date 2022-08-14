@@ -16,6 +16,11 @@ public class HtmlTarget implements OutputTarget {
     }
 
     @Override
+    public void addSubHeader(String content) {
+        this.tag.appendChild(new Element("h3").append(content));
+    }
+
+    @Override
     public void addParagraph(String content) {
         this.tag.appendChild(new Element("p").append(content));
     }
@@ -38,6 +43,7 @@ public class HtmlTarget implements OutputTarget {
         } else {
             this.lists.peek().appendChild(elem);
         }
+        this.tag.appendChild(new Element("br"));
     }
 
     @Override

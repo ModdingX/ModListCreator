@@ -1,15 +1,16 @@
 package org.moddingx.modlistcreator.platform;
 
 import com.google.gson.JsonElement;
-import org.moddingx.modlistcreator.modlist.ModListCreator;
+import org.moddingx.modlistcreator.Main;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
 import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.nio.file.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 
 public interface Modpack {
     
@@ -17,6 +18,15 @@ public interface Modpack {
     Minecraft minecraft();
     String version();
     List<File> files();
+
+    public static Modpack fromPath(Path path) throws IOException {
+        try {
+            return Modpack.loadZip(path);
+        } catch (ProviderNotFoundException e) {
+            // Not a zip file
+            return Modpack.load(path);
+        }
+    }
     
     static Modpack loadZip(Path path) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + path.toAbsolutePath().normalize().toUri()), Map.of())) {
@@ -33,7 +43,7 @@ public interface Modpack {
     static Modpack load(Path path) throws IOException {
         JsonElement json;
         try (Reader reader = Files.newBufferedReader(path)) {
-            json = ModListCreator.GSON.fromJson(reader, JsonElement.class);
+            json = Main.GSON.fromJson(reader, JsonElement.class);
         }
         for (Type type : Type.values()) {
             Optional<? extends Modpack> pack = type.factory.apply(json);
@@ -47,7 +57,7 @@ public interface Modpack {
     static Modpack load(Path path, Type type) throws IOException {
         JsonElement json;
         try (Reader reader = Files.newBufferedReader(path)) {
-            json = ModListCreator.GSON.fromJson(reader, JsonElement.class);
+            json = Main.GSON.fromJson(reader, JsonElement.class);
         }
         Optional<? extends Modpack> pack = type.factory.apply(json);
         if (pack.isEmpty()) {

@@ -1,7 +1,7 @@
 package org.moddingx.modlistcreator.platform;
 
 import com.google.gson.*;
-import org.moddingx.modlistcreator.modlist.ModListCreator;
+import org.moddingx.modlistcreator.Main;
 
 import java.io.IOException;
 import java.net.URI;
@@ -61,7 +61,7 @@ public record ModrinthModpack(
         try {
             JsonObject filesResponse = makeRequest(HttpRequest.newBuilder()
                     .uri(URI.create("https://api.modrinth.com/v2/version_files"))
-                    .POST(HttpRequest.BodyPublishers.ofString(ModListCreator.GSON.toJson(requestData), StandardCharsets.UTF_8))
+                    .POST(HttpRequest.BodyPublishers.ofString(Main.GSON.toJson(requestData), StandardCharsets.UTF_8))
                     .header("Content-Type", "application/json")
             ).getAsJsonObject();
             
@@ -97,7 +97,7 @@ public record ModrinthModpack(
             fileData.stream().map(FileData::projectId).distinct().forEach(allProjectIds::add);
             JsonArray projectsResponse = makeRequest(HttpRequest.newBuilder()
                     .GET()
-                    .uri(URI.create("https://api.modrinth.com/v2/projects?ids=" + URLEncoder.encode(ModListCreator.GSON.toJson(allProjectIds), StandardCharsets.UTF_8)))
+                    .uri(URI.create("https://api.modrinth.com/v2/projects?ids=" + URLEncoder.encode(Main.GSON.toJson(allProjectIds), StandardCharsets.UTF_8)))
             ).getAsJsonArray();
 
             record ProjectData(String slug, String name, URI website, String teamId) {}
@@ -116,7 +116,7 @@ public record ModrinthModpack(
             projectData.values().stream().map(ProjectData::teamId).distinct().forEach(allTeamIds::add);
             JsonArray teamsResponse = makeRequest(HttpRequest.newBuilder()
                     .GET()
-                    .uri(URI.create("https://api.modrinth.com/v2/teams?ids=" + URLEncoder.encode(ModListCreator.GSON.toJson(allTeamIds), StandardCharsets.UTF_8)))
+                    .uri(URI.create("https://api.modrinth.com/v2/teams?ids=" + URLEncoder.encode(Main.GSON.toJson(allTeamIds), StandardCharsets.UTF_8)))
             ).getAsJsonArray();
             
             record TeamData(String owner, URI teamURL) {}
@@ -168,7 +168,7 @@ public record ModrinthModpack(
                 throw new IOException("HTTP " + response.substring(1));
             } else {
                 try {
-                    return ModListCreator.GSON.fromJson(response, JsonElement.class);
+                    return Main.GSON.fromJson(response, JsonElement.class);
                 } catch (JsonParseException e) {
                     throw new IOException("Invalid jso nresponse from modrinth api: " + response, e);
                 }

@@ -14,6 +14,11 @@ public class MarkdownTarget implements OutputTarget {
     }
 
     @Override
+    public void addSubHeader(String content) {
+        this.sb.append("### ").append(content).append("\n\n");
+    }
+
+    @Override
     public void addParagraph(String content) {
         this.sb.append(content).append("\n\n");
     }
@@ -39,6 +44,7 @@ public class MarkdownTarget implements OutputTarget {
     @Override
     public void endList() {
         this.lists.pop();
+        this.sb.append("\n");
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 public interface OutputTarget {
     
     void addHeader(String content);
+    void addSubHeader(String content);
     void addParagraph(String content);
     void beginList(boolean numbered);
     void addListElement(String content);
