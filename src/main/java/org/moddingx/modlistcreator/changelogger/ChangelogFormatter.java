@@ -26,8 +26,8 @@ public class ChangelogFormatter {
                 .toList();
         record ChangedFile(Modpack.File oldFile, Modpack.File newFile) {}
         List<ChangedFile> changed = to.files().stream()
-                .filter(info -> oldInfoBySlug.containsKey(info.projectSlug()))
-                .filter(info -> !oldInfoBySlug.get(info.projectSlug()).equals(info))
+                .filter(file -> oldInfoBySlug.containsKey(file.projectSlug()))
+                .filter(file -> !oldInfoBySlug.get(file.projectSlug()).fileId().equals(file.fileId()))
                 .sorted(Comparator.comparing(o -> o.projectName().toLowerCase(Locale.ROOT)))
                 .map(file -> new ChangedFile(oldInfoBySlug.get(file.projectSlug()), file))
                 .toList();

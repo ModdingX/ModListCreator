@@ -99,6 +99,11 @@ public record CurseModpack(
         }
 
         @Override
+        public String fileId() {
+            return String.valueOf(this.fileId);
+        }
+
+        @Override
         public String author() {
             return this.project.owner();
         }

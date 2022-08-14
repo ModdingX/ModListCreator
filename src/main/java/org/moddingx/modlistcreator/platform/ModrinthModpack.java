@@ -142,7 +142,7 @@ public record ModrinthModpack(
                 if (pd == null) throw new IOException("Project not resolved: " + fd.projectId());
                 TeamData td = teamData.get(pd.teamId());
                 if (td == null) throw new IOException("Team not resolved: " + pd.teamId() + " (of project " + pd.slug() + ")");
-                files.add(new DefaultFile(pd.slug(), pd.name(), fd.fileName(), td.owner(), pd.website(), URI.create(pd.website() + "/").resolve("version/" + fd.versionId()), td.teamURL()));
+                files.add(new DefaultFile(pd.slug(), pd.name(), fd.fileName(), fd.versionId(), td.owner(), pd.website(), URI.create(pd.website() + "/").resolve("version/" + fd.versionId()), td.teamURL()));
             }
         } catch (JsonParseException e) {
             throw new IOException("Failed to query modrinth api", e);

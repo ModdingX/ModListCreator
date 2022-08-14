@@ -71,13 +71,14 @@ public interface Modpack {
         String projectSlug();
         String projectName();
         String fileName();
+        String fileId();
         String author();
         URI projectWebsite();
         URI fileWebsite();
         URI authorWebsite();
     }
     
-    record DefaultFile(String projectSlug, String projectName, String fileName, String author, URI projectWebsite, URI fileWebsite, URI authorWebsite) implements File {}
+    record DefaultFile(String projectSlug, String projectName, String fileName, String fileId, String author, URI projectWebsite, URI fileWebsite, URI authorWebsite) implements File {}
 
     record Minecraft(String version, String loader, String loaderVersion) {}
 
