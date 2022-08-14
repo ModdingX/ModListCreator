@@ -26,7 +26,8 @@ hs_err_pid*
 config/
 build/
 input/
-output/
+/output/
 modlist.html
 modlist.md
 manifest.json
+*.mrpack
