@@ -10,7 +10,7 @@ import java.util.Locale;
 
 public class Main {
 
-    public static Gson GSON;
+    public static final Gson GSON;
 
     static {
         GsonBuilder builder = new GsonBuilder();

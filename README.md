@@ -15,5 +15,5 @@ OR
 ## Detailed information
 
 This tool works for both, Modrinth and CurseForge modpacks.
-- [Changelog](src/main/java/org/moddingx/modlistcreator/changelogger/README.md)
-- [Modlist](src/main/java/org/moddingx/modlistcreator/modlist/README.md)
+- [Changelog](docs/changelogger.md)
+- [Modlist](docs/modlist.md)

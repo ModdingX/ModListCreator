@@ -7,7 +7,7 @@ import joptsimple.OptionSpec;
 import joptsimple.util.PathConverter;
 import joptsimple.util.PathProperties;
 import org.moddingx.modlistcreator.output.OutputTarget;
-import org.moddingx.modlistcreator.util.CommonUtils;
+import org.moddingx.modlistcreator.platform.Modpack;
 import org.moddingx.modlistcreator.util.EnumConverters;
 
 import java.io.IOException;
@@ -29,26 +29,20 @@ public class Changelogger {
         OptionSet set;
         try {
             set = options.parse(args);
-            Path from = set.valueOf(specOld);
-            Path to = set.valueOf(specNew);
-
-            if (!Files.exists(from)) {
-                throw new IllegalStateException("File does not exist: " + from);
-            }
-
-            if (!Files.exists(to)) {
-                throw new IllegalStateException("File does not exist: " + to);
-            }
-
-            OutputTarget.Type outputType = set.valueOf(specFormat);
-            Path output = Paths.get(set.valueOf(specOutput) + "." + outputType.extension);
-            Files.writeString(output, ChangelogFormatter.format(CommonUtils.fromPath(from), CommonUtils.fromPath(to), outputType), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            System.exit(0);
         } catch (OptionException e) {
             System.err.println(e.getMessage() + "\n");
             options.printHelpOn(System.err);
             System.exit(1);
             throw new Error();
         }
+
+        Modpack from = Modpack.fromPath(set.valueOf(specOld));
+        Modpack to = Modpack.fromPath(set.valueOf(specNew));
+
+        for (OutputTarget.Type outputType : set.valuesOf(specFormat)) {
+            Path output = Paths.get(set.valueOf(specOutput) + "." + outputType.extension);
+            Files.writeString(output, ChangelogFormatter.format(from, to, outputType), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        }
+        System.exit(0);
     }
 }

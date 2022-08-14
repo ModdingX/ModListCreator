@@ -17,7 +17,7 @@ public class HtmlTarget implements OutputTarget {
 
     @Override
     public void addSubHeader(String content) {
-        this.tag.appendChild(new Element("h4").append(content));
+        this.tag.appendChild(new Element("h3").append(content));
     }
 
     @Override

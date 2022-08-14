@@ -15,10 +15,6 @@ public class ChangelogFormatter {
         Map<String, Modpack.File> oldInfoBySlug = from.files().stream().collect(Collectors.toMap(Modpack.File::projectSlug, info -> info));
         Map<String, Modpack.File> newInfoBySlug = to.files().stream().collect(Collectors.toMap(Modpack.File::projectSlug, info -> info));
 
-        if (from.getClass() != to.getClass()) {
-            throw new IllegalStateException("Modpacks from different platforms.");
-        }
-
         boolean changedLoader = !from.minecraft().loaderVersion().equals(to.minecraft().loaderVersion());
         List<Modpack.File> added = to.files().stream()
                 .filter(file -> !oldInfoBySlug.containsKey(file.projectSlug()))

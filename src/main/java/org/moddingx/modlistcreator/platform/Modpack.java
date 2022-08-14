@@ -6,10 +6,7 @@ import org.moddingx.modlistcreator.Main;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,6 +18,15 @@ public interface Modpack {
     Minecraft minecraft();
     String version();
     List<File> files();
+
+    public static Modpack fromPath(Path path) throws IOException {
+        try {
+            return Modpack.loadZip(path);
+        } catch (ProviderNotFoundException e) {
+            // Not a zip file
+            return Modpack.load(path);
+        }
+    }
     
     static Modpack loadZip(Path path) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(URI.create("jar:" + path.toAbsolutePath().normalize().toUri()), Map.of())) {

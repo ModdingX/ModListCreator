@@ -8,8 +8,8 @@ import joptsimple.util.PathConverter;
 import joptsimple.util.PathProperties;
 import org.moddingx.modlistcreator.output.OutputTarget;
 import org.moddingx.modlistcreator.platform.Modpack;
-import org.moddingx.modlistcreator.util.CommonUtils;
 import org.moddingx.modlistcreator.util.EnumConverters;
+import org.moddingx.modlistcreator.util.OptionUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,10 +37,10 @@ public class ModListCreator {
         OptionSet set;
         try {
             set = options.parse(args);
-            if (!set.has(specOutput)) CommonUtils.missing(options, specOutput);
-            if (!set.has(specPattern) && set.valuesOf(specFormat).size() != 1) CommonUtils.missing(options, specPattern, "Name pattern needed for multiple output formats");
-            if (!set.has(specPattern) && set.valuesOf(specInput).size() != 1) CommonUtils.missing(options, specPattern, "Name pattern needed for multiple input files");
-            if (set.valuesOf(specInput).isEmpty()) CommonUtils.missing(options, specInput, "No inputs");
+            if (!set.has(specOutput)) OptionUtil.missing(options, specOutput);
+            if (!set.has(specPattern) && set.valuesOf(specFormat).size() != 1) OptionUtil.missing(options, specPattern, "Name pattern needed for multiple output formats");
+            if (!set.has(specPattern) && set.valuesOf(specInput).size() != 1) OptionUtil.missing(options, specPattern, "Name pattern needed for multiple input files");
+            if (set.valuesOf(specInput).isEmpty()) OptionUtil.missing(options, specInput, "No inputs");
         } catch (OptionException e) {
             System.err.println(e.getMessage() + "\n");
             options.printHelpOn(System.err);
@@ -48,7 +48,7 @@ public class ModListCreator {
             throw new Error();
         }
 
-        BiFunction<Modpack, OutputTarget.Type, Path> outputPaths = CommonUtils.outputPathFunc(set.valueOf(specOutput), set.has(specPattern) ? set.valueOf(specPattern) : null);
+        BiFunction<Modpack, OutputTarget.Type, Path> outputPaths = OptionUtil.outputPathFunc(set.valueOf(specOutput), set.has(specPattern) ? set.valueOf(specPattern) : null);
         List<OutputTarget.Type> outputTypes = set.valuesOf(specFormat).stream().distinct().toList();
         boolean includeHeader = !set.has(specNoHeader);
         boolean detailed = set.has(specDetailed);
@@ -59,7 +59,7 @@ public class ModListCreator {
         for (Path path : inputs) {
             joins.add(executor.submit(() -> {
                 try {
-                    Modpack pack = CommonUtils.fromPath(path);
+                    Modpack pack = Modpack.fromPath(path);
                     for (OutputTarget.Type type : outputTypes) {
                         Path outputPath = outputPaths.apply(pack, type);
                         if (!Files.exists(outputPath.getParent())) {

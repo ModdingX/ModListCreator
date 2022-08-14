@@ -8,10 +8,9 @@ import org.moddingx.modlistcreator.platform.Modpack;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.ProviderNotFoundException;
 import java.util.function.BiFunction;
 
-public class CommonUtils {
+public class OptionUtil {
 
     public static <T> T missing(OptionParser options, OptionSpec<?> spec) throws IOException {
         return missing(options, spec, "Missing required option");
@@ -32,14 +31,5 @@ public class CommonUtils {
                 .replace("%v", pack.version().replace(' ', '_'))
                 .replace("%%", "%") + "." + type.extension
         );
-    }
-
-    public static Modpack fromPath(Path path) throws IOException {
-        try {
-            return Modpack.loadZip(path);
-        } catch (ProviderNotFoundException e) {
-            // Not a zip file
-            return Modpack.load(path);
-        }
     }
 }
