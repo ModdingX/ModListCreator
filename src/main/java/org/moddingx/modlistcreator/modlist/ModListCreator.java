@@ -1,7 +1,5 @@
 package org.moddingx.modlistcreator.modlist;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -26,14 +24,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.BiFunction;
 
 public class ModListCreator {
-
-    public static Gson GSON;
-    
-    static {
-        GsonBuilder builder = new GsonBuilder();
-        builder.disableHtmlEscaping();
-        GSON = builder.create();
-    }
 
     public static void run(String[] args) throws IOException {
         OptionParser options = new OptionParser();

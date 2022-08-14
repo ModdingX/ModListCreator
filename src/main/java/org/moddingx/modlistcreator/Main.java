@@ -1,5 +1,7 @@
 package org.moddingx.modlistcreator;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.moddingx.modlistcreator.changelogger.Changelogger;
 import org.moddingx.modlistcreator.modlist.ModListCreator;
 
@@ -7,6 +9,14 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class Main {
+
+    public static Gson GSON;
+
+    static {
+        GsonBuilder builder = new GsonBuilder();
+        builder.disableHtmlEscaping();
+        GSON = builder.create();
+    }
     
     public static void main(String[] args) throws IOException {
         String cmd = args.length == 0 ? "" : args[0];
