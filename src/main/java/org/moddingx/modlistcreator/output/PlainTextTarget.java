@@ -15,6 +15,12 @@ public class PlainTextTarget implements OutputTarget {
     }
 
     @Override
+    public void addSubHeader(String content) {
+        this.sb.append("    ").append(content).append("    \n");
+        this.sb.append("  ").append("-".repeat(content.length() + 4)).append("  \n\n");
+    }
+
+    @Override
     public void addParagraph(String content) {
         int len = 0;
         for (String word : content.split(" ")) {
@@ -51,6 +57,7 @@ public class PlainTextTarget implements OutputTarget {
     @Override
     public void endList() {
         this.lists.pop();
+        this.sb.append("\n");
     }
 
     @Override
