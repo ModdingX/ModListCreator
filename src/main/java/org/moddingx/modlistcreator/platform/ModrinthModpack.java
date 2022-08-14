@@ -67,19 +67,26 @@ public record ModrinthModpack(
             
             record FileData(String projectId, String versionId, String fileName) {}
             List<FileData> fileData = new ArrayList<>();
-            
+
             for (String hash : hashes) {
                 if (!filesResponse.has(hash)) {
                     throw new IllegalArgumentException("File not hosted on modrinth: sha512=" + hash);
                 }
+
                 JsonObject versionData = filesResponse.get(hash).getAsJsonObject();
                 String fileName = null;
-                for (JsonElement versionFile : versionData.get("files").getAsJsonArray()) {
-                    if (versionFile.getAsJsonObject().get("primary").getAsBoolean()) {
-                        fileName = versionFile.getAsJsonObject().get("filename").getAsString();
-                        break;
+                JsonArray versionFiles = versionData.get("files").getAsJsonArray();
+                if (versionFiles.size() == 1) {
+                    fileName = versionFiles.get(0).getAsJsonObject().get("filename").getAsString();
+                } else {
+                    for (JsonElement versionFile : versionFiles) {
+                        if (versionFile.getAsJsonObject().get("primary").getAsBoolean()) {
+                            fileName = versionFile.getAsJsonObject().get("filename").getAsString();
+                            break;
+                        }
                     }
                 }
+
                 if (fileName == null) {
                     throw new IOException("Version has no primary file");
                 }
@@ -120,7 +127,7 @@ public record ModrinthModpack(
                     if ("Owner".equals(teamEntry.get("role").getAsString())) {
                         JsonObject user = teamEntry.get("user").getAsJsonObject();
                         String name = user.get("username").getAsString();
-                        if (user.has("name") && !user.get("name").isJsonNull()) {
+                        if (user.has("name") && !user.get("name").isJsonNull() && !user.get("name").getAsString().isEmpty()) {
                             name = user.get("name").getAsString();
                         }
                         teamData.put(teamEntry.get("team_id").getAsString(), new TeamData(
