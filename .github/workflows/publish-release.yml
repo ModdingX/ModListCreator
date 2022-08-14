@@ -16,7 +16,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - name: Build with Gradle
-      run: './gradlew build'
+      run: 'chmod +x ./gradlew && ./gradlew build'
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
