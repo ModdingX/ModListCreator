@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public record CurseModpack(
         String title,
@@ -32,14 +33,14 @@ public record CurseModpack(
         JsonObject obj = json.getAsJsonObject();
         String title = Objects.requireNonNull(obj.get("name"), "Missing property: name").getAsString();
         String version = obj.has("version") ? obj.get("version").getAsString() : "unknown";
-        
+
         JsonObject minecraft = Objects.requireNonNull(obj.get("minecraft"), "Missing property: minecraft").getAsJsonObject();
         String mcVersion = Objects.requireNonNull(minecraft.get("version"), "Missing property: minecraft.version").getAsString();
         JsonArray loaderArray = Objects.requireNonNull(minecraft.get("modLoaders"), "Missing property: minecraft.modLoaders").getAsJsonArray();
         if (loaderArray.size() != 1) throw new JsonSyntaxException("Modpack must define exactly one mod loader");
         String loaderId = Objects.requireNonNull(loaderArray.get(0).getAsJsonObject().get("id"), "Missing property: minecraft.modLoaders[0].id").getAsString();
         if (!loaderId.contains("-")) throw new JsonSyntaxException("Modpack loader id is invalid: " + loaderId);
-        
+
         JsonArray filesArray = Objects.requireNonNull(obj.get("files"), "Missing property: files").getAsJsonArray();
         Set<Integer> projectIds = new HashSet<>();
         Map<Integer, Integer> fileIds = new HashMap<>();
@@ -57,18 +58,19 @@ public record CurseModpack(
         List<Modpack.File> files = fileIds.entrySet().stream()
                 .<Modpack.File>map(entry -> new CurseFile(resolvedProjects.get(entry.getKey()), entry.getValue()))
                 .toList();
-        
+
         return Optional.of(new CurseModpack(title, new Modpack.Minecraft(
                 mcVersion, loaderId.substring(0, loaderId.indexOf('-')), loaderId.substring(loaderId.indexOf('-') + 1)
         ), version, List.copyOf(files)));
     }
-    
+
     // Don't resolve file name and URL if not needed
     private static class CurseFile implements Modpack.File {
 
         private final ProjectInfo project;
         private final int fileId;
         private FileInfo file;
+        private int tries = 0;
 
         private CurseFile(ProjectInfo project, int fileId) {
             this.project = project;
@@ -91,7 +93,16 @@ public record CurseModpack(
             if (this.file == null) {
                 try {
                     this.file = API.getFile(this.project.projectId(), this.fileId);
+                    System.out.println("Retrieved detailed information for \u001B[33m" + this.file.name() + "\u001B[0m");
                 } catch (IOException e) {
+                    if (this.tries < 5) {
+                        System.out.println("Failed to retrieve detailed information for project \u001B[33m" + this.project.name() + "\u001B[0m. Try again (" + ++this.tries + "/5)");
+                        try {
+                            TimeUnit.SECONDS.sleep(3);
+                        } catch (InterruptedException ignored) {}
+                        return this.fileName();
+                    }
+
                     throw new RuntimeException(e);
                 }
             }
