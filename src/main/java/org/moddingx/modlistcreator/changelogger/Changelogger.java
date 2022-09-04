@@ -22,8 +22,8 @@ public class Changelogger {
 
     public static void run(String[] args) throws IOException {
         OptionParser options = new OptionParser();
-        OptionSpec<Path> specOld = options.acceptsAll(List.of("o", "old"), "Defines the old modpack zip or json file").withOptionalArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
-        OptionSpec<Path> specNew = options.acceptsAll(List.of("n", "new"), "Defines the new modpack zip or json file").withOptionalArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
+        OptionSpec<Path> specOld = options.acceptsAll(List.of("o", "old"), "Defines the old modpack zip or json file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
+        OptionSpec<Path> specNew = options.acceptsAll(List.of("n", "new"), "Defines the new modpack zip or json file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
         OptionSpec<String> specOutput = options.accepts("output", "Defines the output file name").withOptionalArg().ofType(String.class);
         OptionSpec<OutputTarget.Type> specFormat = options.accepts("format", "The output format to use").withRequiredArg().withValuesConvertedBy(EnumConverters.enumArg(OutputTarget.Type.class)).defaultsTo(OutputTarget.Type.MARKDOWN);
 
