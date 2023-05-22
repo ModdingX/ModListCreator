@@ -1,5 +1,6 @@
 plugins {
-    id "java"
+    id "java-library"
+    id "application"
     id "maven-publish"
 }
 
@@ -7,42 +8,50 @@ group "org.moddingx"
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 repositories {
-	mavenCentral()
-	maven { url "https://maven.moddingx.org" }
+    mavenCentral()
+    maven { url "https://maven.moddingx.org" }
 }
 
 dependencies {
-	implementation "org.moddingx:CurseWrapper:3.0"
+    implementation "org.moddingx:CurseWrapper:3.2"
 
-	implementation 'org.jsoup:jsoup:1.15.2'
-	implementation "net.sf.jopt-simple:jopt-simple:6.0-alpha-3"
+    implementation 'org.jsoup:jsoup:1.16.1'
+    implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
 }
 
+application.mainClass = 'org.moddingx.modlistcreator.Main'
+
 jar {
-	manifest {
-		attributes([
-		        "Main-Class": "org.moddingx.modlistcreator.Main"
-		])
-	}
+    manifest {
+        attributes([
+                'Main-Class': application.mainClass.get()
+        ])
+    }
 }
 
 task fatjar(type: Jar) {
-	archiveClassifier = "fatjar"
-	manifest = jar.manifest
-	with jar
+    archiveClassifier = 'fatjar'
+    manifest = jar.manifest
+    with jar
 }
 build.dependsOn fatjar
 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+build.dependsOn sourcesJar
+
 task configureFatJar {
-	doLast {
-		configurations.runtimeClasspath.each { dep ->
-			fatjar.from(project.zipTree(dep)) {
-				exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'module-info.class'
-				duplicatesStrategy DuplicatesStrategy.INCLUDE
-			}
-		}
-	}
-	outputs.upToDateWhen { false }
+    doLast {
+        configurations.runtimeClasspath.each { dep ->
+            fatjar.from(project.zipTree(dep)) {
+                exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'module-info.class'
+                duplicatesStrategy DuplicatesStrategy.INCLUDE
+            }
+        }
+    }
+    outputs.upToDateWhen { false }
 }
 fatjar.dependsOn configureFatJar
 
@@ -50,6 +59,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            artifact sourcesJar
             pom {
                 licenses {
                     license {
