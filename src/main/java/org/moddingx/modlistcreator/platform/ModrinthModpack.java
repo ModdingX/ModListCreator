@@ -100,7 +100,7 @@ public record ModrinthModpack(
                     .uri(URI.create("https://api.modrinth.com/v2/projects?ids=" + URLEncoder.encode(Main.GSON.toJson(allProjectIds), StandardCharsets.UTF_8)))
             ).getAsJsonArray();
 
-            record ProjectData(String slug, String name, URI website, String teamId) {}
+            record ProjectData(String slug, String name, URI website, String teamId, String organizationId) {}
             Map<String, ProjectData> projectData = new HashMap<>();
             for (JsonElement entry : projectsResponse) {
                 JsonObject projectEntry = entry.getAsJsonObject();
@@ -108,14 +108,22 @@ public record ModrinthModpack(
                         projectEntry.get("slug").getAsString(),
                         projectEntry.get("title").getAsString(),
                         URI.create("https://modrinth.com/" + URLEncoder.encode(projectEntry.get("project_type").getAsString(), StandardCharsets.UTF_8) + "/" + URLEncoder.encode(projectEntry.get("slug").getAsString(), StandardCharsets.UTF_8)),
-                        projectEntry.get("team").getAsString()
+                        projectEntry.get("team").getAsString(),
+                        projectEntry.get("organization").isJsonNull() ? null : projectEntry.get("organization").getAsString()
                 ));
             }
-            
+
+            JsonArray allOrganizationIds = new JsonArray();
+            projectData.values().stream().filter(pd -> pd.organizationId != null).map(ProjectData::organizationId).distinct().forEach(allOrganizationIds::add);
+            JsonArray organizationsResponse = makeRequest(HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create("https://api.modrinth.com/v3/organizations?ids=" + URLEncoder.encode(Main.GSON.toJson(allOrganizationIds), StandardCharsets.UTF_8)))
+            ).getAsJsonArray();
+
             JsonArray allTeamIds = new JsonArray();
             projectData.values().stream().map(ProjectData::teamId).distinct().forEach(allTeamIds::add);
             JsonArray teamsResponse = makeRequest(HttpRequest.newBuilder()
-                    .GET()
+                    .GET() // todo use API v3 https://api.modrinth.com/v3/organizations?ids=%5B%22gk6hXWbb%22%5D
                     .uri(URI.create("https://api.modrinth.com/v2/teams?ids=" + URLEncoder.encode(Main.GSON.toJson(allTeamIds), StandardCharsets.UTF_8)))
             ).getAsJsonArray();
             
@@ -124,7 +132,7 @@ public record ModrinthModpack(
             for (JsonElement entryArr : teamsResponse) {
                 for (JsonElement entry : entryArr.getAsJsonArray()) {
                     JsonObject teamEntry = entry.getAsJsonObject();
-                    if ("Owner".equals(teamEntry.get("role").getAsString())) {
+                    if ("Owner".equals(teamEntry.get("role").getAsString())) { // todo v3 -> change to is_owner
                         JsonObject user = teamEntry.get("user").getAsJsonObject();
                         String name = user.get("username").getAsString();
                         if (user.has("name") && !user.get("name").isJsonNull() && !user.get("name").getAsString().isEmpty()) {
@@ -136,11 +144,18 @@ public record ModrinthModpack(
                     }
                 }
             }
+
+            for (JsonElement entryArr : organizationsResponse) {
+                JsonObject orgEntry = entryArr.getAsJsonObject();
+                teamData.put(orgEntry.get("id").getAsString(), new TeamData(
+                        orgEntry.get("name").getAsString(), URI.create("https://modrinth.com/organization/" + URLEncoder.encode(orgEntry.get("slug").getAsString(), StandardCharsets.UTF_8))
+                ));
+            }
             
             for (FileData fd : fileData) {
                 ProjectData pd = projectData.get(fd.projectId());
                 if (pd == null) throw new IOException("Project not resolved: " + fd.projectId());
-                TeamData td = teamData.get(pd.teamId());
+                TeamData td = teamData.get(pd.organizationId() == null ? pd.teamId() : pd.organizationId());
                 if (td == null) throw new IOException("Team not resolved: " + pd.teamId() + " (of project " + pd.slug() + ")");
                 files.add(new DefaultFile(pd.slug(), pd.name(), fd.fileName(), fd.versionId(), td.owner(), pd.website(), URI.create(pd.website() + "/").resolve("version/" + fd.versionId()), td.teamURL()));
             }
