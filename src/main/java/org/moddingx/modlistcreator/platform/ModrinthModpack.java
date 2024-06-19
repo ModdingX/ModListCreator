@@ -123,7 +123,7 @@ public record ModrinthModpack(
             JsonArray allTeamIds = new JsonArray();
             projectData.values().stream().map(ProjectData::teamId).distinct().forEach(allTeamIds::add);
             JsonArray teamsResponse = makeRequest(HttpRequest.newBuilder()
-                    .GET() // todo use API v3 https://api.modrinth.com/v3/organizations?ids=%5B%22gk6hXWbb%22%5D
+                    .GET()
                     .uri(URI.create("https://api.modrinth.com/v2/teams?ids=" + URLEncoder.encode(Main.GSON.toJson(allTeamIds), StandardCharsets.UTF_8)))
             ).getAsJsonArray();
             
