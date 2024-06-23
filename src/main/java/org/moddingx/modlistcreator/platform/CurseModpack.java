@@ -23,7 +23,7 @@ public record CurseModpack(
 ) implements Modpack {
 
     public static final int MANIFEST_VERSION = 1;
-    private static final CurseWrapper API = new CurseWrapper(URI.create("https://curse.melanx.de/"));
+    private static final CurseWrapper API = new CurseWrapper(URI.create("https://curse.moddingx.org/"));
 
 
     public static Optional<CurseModpack> load(JsonElement json) throws IOException {
