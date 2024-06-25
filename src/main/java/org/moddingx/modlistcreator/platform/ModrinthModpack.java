@@ -135,11 +135,8 @@ public record ModrinthModpack(
                     if ("Owner".equals(teamEntry.get("role").getAsString())) { // todo v3 -> change to is_owner
                         JsonObject user = teamEntry.get("user").getAsJsonObject();
                         String name = user.get("username").getAsString();
-                        if (user.has("name") && !user.get("name").isJsonNull() && !user.get("name").getAsString().isEmpty()) {
-                            name = user.get("name").getAsString();
-                        }
                         teamData.put(teamEntry.get("team_id").getAsString(), new TeamData(
-                                name, URI.create("https://modrinth.com/user/" + URLEncoder.encode(user.get("username").getAsString(), StandardCharsets.UTF_8))
+                                name, URI.create("https://modrinth.com/user/" + URLEncoder.encode(name, StandardCharsets.UTF_8))
                         ));
                     }
                 }
