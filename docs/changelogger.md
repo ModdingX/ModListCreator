@@ -14,4 +14,5 @@
 |  **old**   | Defines the old modpack zip or json file                                 |
 |  **new**   | Defines the new modpack zip or json file                                 |
 | **output** | Defines the output file name                                             |
+| no-header  | Generates the file without pack name and version                         |
 |   format   | The output format to use (`plain_text`, `html`, or `markdown` (default)) |

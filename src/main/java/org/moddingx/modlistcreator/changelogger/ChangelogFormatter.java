@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class ChangelogFormatter {
 
-    public static String format(Modpack from, Modpack to, OutputTarget.Type outputType) {
+    public static String format(Modpack from, Modpack to, OutputTarget.Type outputType, boolean noHeader) {
         Map<String, Modpack.File> oldInfoBySlug = from.files().stream().collect(Collectors.toMap(Modpack.File::projectSlug, info -> info));
         Map<String, Modpack.File> newInfoBySlug = to.files().stream().collect(Collectors.toMap(Modpack.File::projectSlug, info -> info));
 
@@ -33,7 +33,11 @@ public class ChangelogFormatter {
                 .toList();
 
         OutputTarget target = outputType.create();
-        target.addHeader(from.title() + " - " + from.version() + " -> " + to.version());
+
+        if (!noHeader) {
+            target.addHeader(from.title() + " - " + from.version() + " -> " + to.version());
+        }
+
         if (changedLoader) {
             target.addSubHeader(from.minecraft().loader() + " - " + from.minecraft().loaderVersion() + " -> " + to.minecraft().loaderVersion());
         }

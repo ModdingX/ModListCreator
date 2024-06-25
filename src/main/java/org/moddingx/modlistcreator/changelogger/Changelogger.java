@@ -22,6 +22,7 @@ public class Changelogger {
 
     public static void run(String[] args) throws IOException {
         OptionParser options = new OptionParser();
+        OptionSpec<Void> specNoHeader = options.accepts("no-header", "Generates the file without pack name and version");
         OptionSpec<Path> specOld = options.acceptsAll(List.of("o", "old"), "Defines the old modpack zip or json file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
         OptionSpec<Path> specNew = options.acceptsAll(List.of("n", "new"), "Defines the new modpack zip or json file").withRequiredArg().withValuesConvertedBy(new PathConverter(PathProperties.FILE_EXISTING));
         OptionSpec<String> specOutput = options.accepts("output", "Defines the output file name").withOptionalArg().ofType(String.class);
@@ -43,7 +44,7 @@ public class Changelogger {
         Modpack from = Modpack.fromPath(set.valueOf(specOld));
         Modpack to = Modpack.fromPath(set.valueOf(specNew));
         Path output = Paths.get(set.valueOf(specOutput));
-        Files.writeString(output, ChangelogFormatter.format(from, to, set.valueOf(specFormat)), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.writeString(output, ChangelogFormatter.format(from, to, set.valueOf(specFormat), set.has(specNoHeader)), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         System.exit(0);
     }
 }
