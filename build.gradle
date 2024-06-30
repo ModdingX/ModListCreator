@@ -5,7 +5,7 @@ plugins {
 }
 
 group "org.moddingx"
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 repositories {
     mavenCentral()
@@ -13,10 +13,10 @@ repositories {
 }
 
 dependencies {
-    implementation "org.moddingx:CurseWrapper:3.2"
-
-    implementation 'org.jsoup:jsoup:1.16.1'
-    implementation "net.sf.jopt-simple:jopt-simple:5.0.4"
+    implementation 'org.jetbrains:annotations:24.1.0'
+    implementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
+    implementation 'org.jsoup:jsoup:1.17.2'
+    implementation 'org.moddingx:CurseWrapper:5.0'
 }
 
 application.mainClass = 'org.moddingx.modlistcreator.Main'
@@ -72,6 +72,7 @@ publishing {
     }
     repositories {
         maven {
+            name 'moddingx'
             url 'https://maven.moddingx.org/release'
             credentials(PasswordCredentials)
         }

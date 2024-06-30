@@ -2,10 +2,10 @@ package org.moddingx.modlistcreator.util;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
+import org.jetbrains.annotations.Nullable;
 import org.moddingx.modlistcreator.output.OutputTarget;
 import org.moddingx.modlistcreator.platform.Modpack;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.BiFunction;
