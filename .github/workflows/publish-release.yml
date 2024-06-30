@@ -24,7 +24,7 @@ jobs:
           -PmoddingxPassword=${{ secrets.PUBLISH_PASSWORD }} \
           build publish
       - name: 'Upload Release'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.14.0
         with:
           generateReleaseNotes: true
           artifacts: build/libs/ModListCreator-${{ github.ref_name }}-fatjar.jar
