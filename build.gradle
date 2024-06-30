@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:24.1.0'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     implementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'org.moddingx:CurseWrapper:5.0'

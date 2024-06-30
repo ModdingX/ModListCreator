@@ -1,8 +1,8 @@
 package org.moddingx.modlistcreator.util;
 
+import jakarta.annotation.Nullable;
 import joptsimple.OptionParser;
 import joptsimple.OptionSpec;
-import org.jetbrains.annotations.Nullable;
 import org.moddingx.modlistcreator.output.OutputTarget;
 import org.moddingx.modlistcreator.platform.Modpack;
 
